@@ -1,23 +1,41 @@
-fx_version "cerulean"
+fx_version 'cerulean'
+game 'gta5'
 
-description "Basic React (TypeScript) & Lua Game Scripts Boilerplate"
-author "Project Error"
-version '1.0.0'
-repository 'https://github.com/project-error/fivem-react-boilerplate-lua'
+author 'Your Name'
+description 'Modern HUD System'
+version '2.0.0'
 
 lua54 'yes'
+use_fxv2_oal 'yes'
 
-games {
-  "gta5",
-  "rdr3"
+ui_page 'html/index.html'
+
+client_scripts {
+    'config.lua',
+    'modules/cruise.lua',
+    'modules/postals.lua',
+    'modules/utils.lua',
+    'client.lua'
 }
 
-ui_page 'web/build/index.html'
-
-client_script "client/**/*"
-server_script "server/**/*"
+server_scripts {
+    'server.lua',
+    'config.lua'
+}
 
 files {
-	'web/build/index.html',
-	'web/build/**/*',
+    'html/index.html',
+    'html/styles.css',
+    'html/app.js',
+    
+    -- Images
+    'html/images/*.png',
+    'html/images/*.svg',
+    
+    -- Fonts if needed
+    'html/fonts/*.ttf',
+    'html/fonts/*.woff',
+    'html/fonts/*.woff2'
 }
+
+shared_script '@es_extended/imports.lua'
