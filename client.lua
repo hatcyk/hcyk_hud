@@ -131,7 +131,9 @@ AddEventHandler("baseevents:leftVehicle", function(veh)
     end
     lastVehEngine = false
     
-    resetVehicleMaxSpeed(veh)
+    if vehicleCruiser == 'on' then
+        limitVehicleSpeed(veh, nil)
+    end
     vehicleCruiser = 'off'
 end)
 
@@ -357,24 +359,11 @@ function updateStreetInfo()
     local position = GetEntityCoords(player)
     local heading = GetEntityHeading(player)
     
-    -- Get time
-    local hour = GetClockHours()
-    local minute = GetClockMinutes()
-    
-    -- Format time properly
-    if hour < 10 then hour = "0" .. hour end
-    if minute < 10 then minute = "0" .. minute end
-    
-    streetInfo.time = hour .. ":" .. minute
-    
-    -- Get compass direction
     streetInfo.compass = getCardinalDirection(heading)
     
-    -- Get street name
     local streetHash = GetStreetNameAtCoord(position.x, position.y, position.z)
     streetInfo.street = GetStreetNameFromHashKey(streetHash) or "Unknown"
     
-    -- Find nearest postal code
     local lastDistance = 1000
     for i = 1, #PostalConfig.postalCodes do
         local distance = #(position.xy - vector2(PostalConfig.postalCodes[i].x, PostalConfig.postalCodes[i].y))
@@ -698,3 +687,47 @@ function GetMinimapAnchor()
     return Minimap
 end
 
+local hideDefaultHUD = true
+local radarDisplayed = false
+
+RegisterNUICallback('hideRadar', function(data, cb)
+    DisplayRadar(false)
+    radarDisplayed = false
+    
+    if hideDefaultHUD then
+        HideHudComponentThisFrame(1)
+        HideHudComponentThisFrame(2)
+        HideHudComponentThisFrame(3)
+        HideHudComponentThisFrame(4)
+        HideHudComponentThisFrame(6)
+        HideHudComponentThisFrame(7)
+        HideHudComponentThisFrame(8)
+        HideHudComponentThisFrame(9)
+        HideHudComponentThisFrame(13)
+        HideHudComponentThisFrame(17)
+        HideHudComponentThisFrame(20)
+    end
+    
+    cb({})
+end)
+
+RegisterNUICallback('getGameTime', function(data, cb)
+    local year, month, day, hour, minute = GetLocalTime(x,x,x,x,hodiny,minuty)
+    local currentTime = string.format("%02d:%02d", hour, minute)
+
+    cb({
+        time = currentTime
+    })
+end)
+
+AddEventHandler("baseevents:enteredVehicle", function(veh) 
+    DisplayRadar(true)
+    radarDisplayed = false
+    pedInVeh = true
+
+    if IsVehicleDriveable(veh) then
+        lastVehEngine = true
+    end
+
+    monitorVehicleState()
+end)

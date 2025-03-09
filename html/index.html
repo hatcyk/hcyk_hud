@@ -3,23 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Completely New HUD</title>
+  <title>Fivem Hud</title>
   
-  <!-- Import necessary libraries -->
   <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
   
-  <!-- Font imports -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
-  <!-- Stylesheets -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="main-container">
-    <!-- Status Icons - A minimal set of icons showing player status -->
     <div id="status-icons">
       <div class="status-box">
         <div class="status-icon-wrap" id="health-icon">
@@ -41,72 +37,94 @@
           <i class="fas fa-tint"></i>
           <span class="status-value" id="thirst-value">100</span>
         </div>
+        
+        <div class="status-icon-wrap" id="stamina-icon">
+          <i class="fas fa-running"></i>
+          <span class="status-value" id="stamina-value">100</span>
+        </div>
+        
+        <div class="status-icon-wrap" id="oxygen-icon">
+          <i class="fas fa-lungs"></i>
+          <span class="status-value" id="oxygen-value">100</span>
+        </div>
       </div>
     </div>
     
-    <!-- Vehicle HUD - Uses numbers and icons instead of progress bars -->
     <div id="vehicle-display" class="hidden">
       <div class="vehicle-main">
-        <div class="vehicle-info">
-          <div class="speed-info">
-            <span id="speed-value">0</span>
-            <span class="speed-unit">MPH</span>
-          </div>
-          
-          <div class="speed-secondary">
+        <div class="vehicle-left">
+          <div class="speed-container">
+            <div class="speed-info">
+              <span id="speed-value">0</span>
+              <span class="speed-unit">MPH</span>
+            </div>
             <div class="gear-info">
               <i class="fas fa-gears"></i>
-              <span id="gear-value">N</span>
+              <span id="gear-value">1</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="vehicle-right">
+          <div class="vehicle-indicators">
+            <div class="indicator" id="signal-left">
+              <i class="fas fa-arrow-left"></i>
             </div>
             
-            <div class="rpm-info">
+            <div class="indicator" id="lights-indicator">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            
+            <div class="indicator" id="seatbelt-indicator">
+              <i class="fas fa-user-lock"></i>
+            </div>
+            
+            <div class="indicator" id="cruise-indicator">
               <i class="fas fa-tachometer-alt"></i>
-              <span id="rpm-value">0</span>
+            </div>
+            
+            <div class="indicator" id="signal-right">
+              <i class="fas fa-arrow-right"></i>
             </div>
           </div>
-        </div>
-        
-        <div class="vehicle-gauges">
-          <div class="gauge-item" id="fuel-gauge">
-            <i class="fas fa-gas-pump"></i>
-            <span id="fuel-value">100</span>
+          
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>RPM</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar" id="rpm-progress" style="width: 0%"></div>
+            </div>
           </div>
           
-          <div class="gauge-item" id="damage-gauge">
-            <i class="fas fa-car"></i>
-            <span id="damage-value">100</span>
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <i class="fas fa-gas-pump"></i>
+              <span>Fuel</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar" id="fuel-progress" style="width: 100%"></div>
+            </div>
           </div>
-        </div>
-      </div>
-      
-      <!-- Vehicle indicators -->
-      <div class="vehicle-indicators">
-        <div class="indicator" id="signal-left">
-          <i class="fas fa-arrow-left"></i>
-        </div>
-        
-        <div class="indicator" id="lights-indicator">
-          <i class="fas fa-lightbulb"></i>
-        </div>
-        
-        <div class="indicator" id="seatbelt-indicator">
-          <i class="fas fa-user-lock"></i>
-        </div>
-        
-        <div class="indicator" id="cruise-indicator">
-          <i class="fas fa-tachometer-alt"></i>
-        </div>
-        
-        <div class="indicator" id="signal-right">
-          <i class="fas fa-arrow-right"></i>
+          
+          <div class="gauge-item">
+            <div class="gauge-label">
+              <i class="fas fa-car"></i>
+              <span>Health</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-bar" id="damage-progress" style="width: 100%"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     
-    <!-- Location HUD -->
+    <!-- Location HUD - Centered at bottom -->
     <div id="location-display">
       <div class="location-wrapper">
-        <span id="time-value">00:00</span>
+        <span id="time-value">1:00</span>
         <span class="separator">|</span>
         <span id="direction-value">N</span>
         <span class="separator">|</span>

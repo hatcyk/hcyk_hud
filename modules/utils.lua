@@ -58,17 +58,6 @@ function degreesToCardinalDirection(degrees)
     end
 end
 
--- Format time values
-function formatTime(hour, minute)
-    hour = tonumber(hour)
-    minute = tonumber(minute)
-    
-    if hour < 10 then hour = "0" .. hour end
-    if minute < 10 then minute = "0" .. minute end
-    
-    return hour .. ":" .. minute
-end
-
 -- Round to nearest decimal place
 function roundToDecimals(num, decimals)
     local mult = 10 ^ (decimals or 0)
@@ -143,7 +132,6 @@ end
 
 -- Export functions for external use
 exports('DegreesToCardinalDirection', degreesToCardinalDirection)
-exports('FormatTime', formatTime)
 exports('RoundToDecimals', roundToDecimals)
 exports('GetForwardVector', getForwardVector)
 exports('Notify', notify)

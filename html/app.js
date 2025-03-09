@@ -1,5 +1,5 @@
-// Completely New HUD Implementation
-// Modern, minimalist design without progress bars
+// Modern HUD Implementation
+// Matching scoreboard.css colors and redesigned layout
 
 let state = {
 	vehicle: {
@@ -18,7 +18,10 @@ let state = {
 	  health: 100,
 	  armor: 0,
 	  hunger: 100,
-	  thirst: 100
+	  thirst: 100,
+	  stamina: 100,
+	  oxygen: 100,
+	  isUnderwater: false
 	},
 	location: {
 	  street: '',
@@ -53,7 +56,7 @@ let state = {
   };
   
   // UI Components
-  const components = {
+const components = {
 	// Player status
 	healthIcon: document.getElementById('health-icon'),
 	healthValue: document.getElementById('health-value'),
@@ -63,16 +66,20 @@ let state = {
 	hungerValue: document.getElementById('hunger-value'),
 	thirstIcon: document.getElementById('thirst-icon'),
 	thirstValue: document.getElementById('thirst-value'),
+	staminaIcon: document.getElementById('stamina-icon'),
+	staminaValue: document.getElementById('stamina-value'),
+	oxygenIcon: document.getElementById('oxygen-icon'),
+	oxygenValue: document.getElementById('oxygen-value'),
 	
 	// Vehicle components
 	vehicleDisplay: document.getElementById('vehicle-display'),
 	speedValue: document.getElementById('speed-value'),
 	gearValue: document.getElementById('gear-value'),
-	rpmValue: document.getElementById('rpm-value'),
-	fuelGauge: document.getElementById('fuel-gauge'),
-	fuelValue: document.getElementById('fuel-value'),
-	damageGauge: document.getElementById('damage-gauge'),
-	damageValue: document.getElementById('damage-value'),
+	
+	// Progress bars for gauges
+	rpmProgress: document.getElementById('rpm-progress'),
+	fuelProgress: document.getElementById('fuel-progress'),
+	damageProgress: document.getElementById('damage-progress'),
 	
 	// Indicators
 	signalLeft: document.getElementById('signal-left'),
@@ -87,7 +94,7 @@ let state = {
 	directionValue: document.getElementById('direction-value'),
 	streetValue: document.getElementById('street-value'),
 	postalValue: document.getElementById('postal-value')
-  };
+};
   
   // Update HUD with current state
   function updateHUD() {
@@ -99,7 +106,8 @@ let state = {
 	
 	if (components.armorValue) {
 	  components.armorValue.textContent = Math.round(state.player.armor);
-	  components.armorIcon.style.opacity = state.player.armor > 0 ? '1' : '0.5';
+	  // Hide armor when it's 0
+	  components.armorIcon.style.display = state.player.armor > 0 ? 'flex' : 'none';
 	}
 	
 	if (components.hungerValue) {
@@ -112,6 +120,24 @@ let state = {
 	  components.thirstIcon.classList.toggle('low', state.player.thirst < 25);
 	}
 	
+	// Update stamina - show only when less than 100%
+	if (components.staminaValue) {
+	  components.staminaValue.textContent = Math.round(state.player.stamina);
+	  components.staminaIcon.style.display = state.player.stamina < 100 ? 'flex' : 'none';
+	  components.staminaIcon.classList.toggle('low', state.player.stamina < 25);
+	}
+	
+	// Update oxygen - show only when underwater (explicitly checked)
+	if (components.oxygenValue) {
+	  components.oxygenValue.textContent = Math.round(state.player.oxygen);
+	  components.oxygenIcon.style.display = state.player.isUnderwater ? 'flex' : 'none';
+	  components.oxygenIcon.classList.toggle('low', state.player.oxygen < 25);
+	}
+	
+	if (components.timeValue) {
+	  components.timeValue.textContent = state.location.time;
+	}
+	
 	// Update vehicle display if in vehicle
 	if (state.vehicle.speed !== undefined) {
 	  if (components.speedValue) {
@@ -122,20 +148,22 @@ let state = {
 		components.gearValue.textContent = state.vehicle.gear;
 	  }
 	  
-	  if (components.rpmValue) {
-		// Format RPM value to be more readable (e.g., "3.5" instead of "3500")
-		const rpmFormatted = (state.vehicle.rpm / 1000).toFixed(1);
-		components.rpmValue.textContent = rpmFormatted;
+	  // Update progress bars instead of text values
+	  if (components.rpmProgress) {
+		// Calculate RPM as percentage (0-10000 range)
+		const rpmPercent = (state.vehicle.rpm / 10000) * 100;
+		components.rpmProgress.style.width = `${rpmPercent}%`;
+		components.rpmProgress.classList.toggle('high', rpmPercent > 80);
 	  }
 	  
-	  if (components.fuelValue && components.fuelGauge) {
-		components.fuelValue.textContent = Math.round(state.vehicle.fuel);
-		components.fuelGauge.classList.toggle('low', state.vehicle.fuel <= 20);
+	  if (components.fuelProgress) {
+		components.fuelProgress.style.width = `${state.vehicle.fuel}%`;
+		components.fuelProgress.classList.toggle('low', state.vehicle.fuel <= 20);
 	  }
 	  
-	  if (components.damageValue && components.damageGauge) {
-		components.damageValue.textContent = Math.round(state.vehicle.damage);
-		components.damageGauge.classList.toggle('low', state.vehicle.damage <= 35);
+	  if (components.damageProgress) {
+		components.damageProgress.style.width = `${state.vehicle.damage}%`;
+		components.damageProgress.classList.toggle('low', state.vehicle.damage <= 35);
 	  }
 	  
 	  // Update indicators
@@ -188,12 +216,11 @@ let state = {
 	
 	// Update location display
 	if (components.locationDisplay) {
-	  // Only show location if in vehicle or street display is enabled
-	  if ((state.vehicle.speed !== undefined || state.settings.streetHUDVisible) && state.settings.visible) {
-		if (components.timeValue) components.timeValue.textContent = state.location.time || '00:00';
+	  if (state.settings.visible) {
 		if (components.directionValue) components.directionValue.textContent = state.location.compass || 'N';
 		if (components.streetValue) components.streetValue.textContent = state.location.street || 'Unknown';
 		if (components.postalValue) components.postalValue.textContent = state.location.postal || '000';
+		if (components.timeValue) components.timeValue.textContent = state.location.time;
 		
 		animations.fadeIn(components.locationDisplay);
 	  } else {
@@ -209,15 +236,33 @@ let state = {
 	if (!data.name) return;
 	
 	switch (data.name) {
-	  case 'hudTick':
-		// Update player stats
+		case 'hudTick':
 		state.player.health = data.health || 0;
 		state.player.armor = data.armor || 0;
 		state.player.hunger = data.hunger || 0;
 		state.player.thirst = data.thirst || 0;
+		state.player.stamina = data.stamina || 100;
+		
+		if (data.oxygen !== undefined) {
+			state.player.oxygen = data.oxygen;
+		}
+		state.player.isUnderwater = data.isUnderwater || false;
+		
 		state.settings.visible = data.show !== false;
 		
-		updateHUD();
+		fetch('https://hcyk_hud/getGameTime', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json; charset=UTF-8',
+			},
+			body: JSON.stringify({ time: state.location.time })
+		})
+			.then(response => response.json())
+			.then(timeData => {
+				state.location.time = timeData.time;
+				updateHUD();
+			});
+		
 		break;
 		
 	  case 'updateCarhud':
@@ -247,20 +292,25 @@ let state = {
 				state.location.street = info.location;
 				state.location.compass = info.compass || '';
 				state.location.postal = info.postal || '';
-				state.location.time = info.time || '';
+			  }
+			  
+			  if (info.time) {
+				state.location.time = info.time;
+			  }
+			  
+			  // Update speedUnit if provided
+			  if (info.config && info.config.speedUnit) {
+				state.settings.speedUnit = info.config.speedUnit;
+				document.querySelector('.speed-unit').textContent = info.config.speedUnit;
 			  }
 			} else {
-			  // Out of vehicle
 			  state.vehicle.speed = undefined;
-			  
-			  // If streets display is enabled
 			  state.settings.streetHUDVisible = info.streets || false;
 			  
 			  if (info.streets) {
 				state.location.street = info.location || '';
 				state.location.compass = info.compass || '';
 				state.location.postal = info.postal || '';
-				state.location.time = info.time || '';
 			  }
 			}
 		  }
@@ -280,19 +330,9 @@ let state = {
 		
 		updateHUD();
 		break;
-		
-	  case 'updatePosition':
-		// Update minimap position if needed
-		if (components.locationDisplay) {
-		  // We can keep the location centered or adjust based on minimap position
-		  // components.locationDisplay.style.left = `${data.minimapX + (data.minimapWidth / 2)}px`;
-		}
-		break;
 	}
   });
   
-  // Initialize HUD on page load
   document.addEventListener('DOMContentLoaded', function() {
-	console.log('Completely New HUD initialized');
 	updateHUD();
   });
