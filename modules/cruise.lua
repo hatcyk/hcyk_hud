@@ -1,7 +1,3 @@
--- Modern implementation of the cruise control system
--- Based on: https://github.com/hojgr/teb_speed_control/blob/master/client/speed_limiter.lua
--- Optimized for better performance and responsiveness
-
 local activeVehicle = nil
 local targetSpeed = nil
 local toleranceThreshold = 2/3.6 -- Speed difference tolerance (2 km/h)
