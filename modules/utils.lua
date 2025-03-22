@@ -34,8 +34,8 @@ function degreesToCardinalDirection(degrees)
             end
         end
         
-        -- Return cardinal direction with exact degrees
-        return directions[closestDirection] .. " " .. math.floor(degrees) .. "°"
+        -- Return cardinal direction WITHOUT degrees
+        return directions[closestDirection]
     else
         -- Standard 8-point direction
         if (degrees >= 337.5 or degrees < 22.5) then
@@ -81,7 +81,7 @@ function notify(type, message, duration)
         duration = Config.notifications.duration
     end
     
-    exports['okokNotify']:Alert('Server', message, duration, type)
+    exports['okokNotify']:Alert('Hud', message, 4500, type)
 end
 
 -- Convert speed between units
@@ -130,6 +130,42 @@ function vehicleHasSeatbelts(vehicle)
     return hasSeatbelt[vehicleClass] or false
 end
 
+-- Get minimap anchor position
+function GetMinimapAnchor()
+    local safezone = GetSafeZoneSize()
+    local safezone_x = 1.0 / 20.0
+    local safezone_y = 1.0 / 20.0
+    local aspect_ratio = GetAspectRatio(0)
+    if aspect_ratio > 2 then aspect_ratio = 16/9 end
+    
+    local res_x, res_y = GetActiveScreenResolution()
+    local xscale = 1.0 / res_x
+    local yscale = 1.0 / res_y
+    
+    local Minimap = {}
+    Minimap.width = xscale * (res_x / (4 * aspect_ratio))
+    Minimap.height = yscale * (res_y / 5.674)
+    Minimap.left_x = xscale * (res_x * (safezone_x * ((math.abs(safezone - 1.0)) * 10)))
+
+    if aspect_ratio > 2 then
+        Minimap.left_x = Minimap.left_x + Minimap.width * 0.845
+        Minimap.width = Minimap.width * 0.76
+    elseif aspect_ratio > 1.8 then
+        Minimap.left_x = Minimap.left_x + Minimap.width * 0.2225
+        Minimap.width = Minimap.width * 0.995
+    end
+    
+    Minimap.bottom_y = 1.0 - yscale * (res_y * (safezone_y * ((math.abs(safezone - 1.0)) * 10)))
+    Minimap.right_x = Minimap.left_x + Minimap.width
+    Minimap.top_y = Minimap.bottom_y - Minimap.height
+    Minimap.x = Minimap.left_x
+    Minimap.y = Minimap.top_y
+    Minimap.xunit = xscale
+    Minimap.yunit = yscale
+    
+    return Minimap
+end
+
 -- Export functions for external use
 exports('DegreesToCardinalDirection', degreesToCardinalDirection)
 exports('RoundToDecimals', roundToDecimals)
@@ -137,3 +173,4 @@ exports('GetForwardVector', getForwardVector)
 exports('Notify', notify)
 exports('ConvertSpeed', convertSpeed)
 exports('VehicleHasSeatbelts', vehicleHasSeatbelts)
+exports('GetMinimapAnchor', GetMinimapAnchor)

@@ -2,471 +2,600 @@
 	Section 1: Global Reset & Font Import
 	====================================================== */
 
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-	font-family: 'Oswald', sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Oswald', sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+	
+	@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+	
+	
+	/* ======================================================
+		Section 2: Body & Main Container Styling
+		====================================================== */
+	
+	body {
+		overflow: hidden;
+		width: 100vw;
+		height: 100vh;
+	}
+	
+	#main-container {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		transition: opacity 0.3s ease;
+	}
+	
+	
+	/* ======================================================
+		Section 3: Status Icons & Box Styling
+		====================================================== */
+	
+	#status-icons {
+		position: absolute;
+		left: 1vw;
+		bottom: 1vh;
+	}
+	
+	.status-box {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 12px 15px;
+		background: linear-gradient(145deg, rgba(15,15,15,0.65) 0%, rgba(16,18,33,0.65) 50%, rgba(21,23,43,0.65) 100%);
+		border-radius: 10px;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(27, 28, 46, 0.4);
+		border: 1px solid rgba(27, 28, 46, 0.8);
+		transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
+	  }
+	
+	.status-icon-wrap {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 42px;
+		height: 42px;
+		border-radius: 50%;
+		color: white;
+		border: 2px solid rgba(255, 255, 255, 0.2);
+		transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+		transform-origin: center center;
+		will-change: transform, opacity;
+	  }
+	
+	.status-icon-wrap i {
+		font-size: 18px;
+	}
+	
+	.status-value {
+		position: absolute;
+		bottom: -7px;
+		right: -5px;
+		background: linear-gradient(145deg, rgb(14, 15, 24) 0%, rgb(27, 28, 46) 50%, rgb(14, 15, 24) 100%);
+		color: white;
+		font-size: 12px;
+		font-weight: 600;
+		padding: 2px 6px;
+		border-radius: 4px;
+		min-width: 24px;
+		text-align: center;
+		border: 1px solid rgba(27, 28, 46, 0.8);
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	}
+	
+	
+	/* ======================================================
+		Section 4: Status Icon Specific Colors & Animations
+		====================================================== */
+	
+	/* Health */
+	#health-icon {
+		border-color: rgba(255, 59, 59, 0.8);
+		box-shadow: 0 0 8px rgba(255, 59, 59, 0.5);
+		transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
+	}
+	#health-icon.low {
+		animation: pulse-red 1.5s infinite;
+	}
 
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+	#hunger-icon {
+		border-color: rgba(255, 165, 0, 0.8);
+		box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
+		transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); 
+	}
+	#hunger-icon.low {
+		animation: pulse-orange 1.5s infinite;
+	}
 
-
+	#armor-icon {
+		border-color: rgba(65, 135, 245, 0.8);
+		box-shadow: 0 0 8px rgba(65, 135, 245, 0.5);
+		display: flex;
+	}
+	
+	/* Thirst */
+	#thirst-icon {
+		border-color: rgba(46, 134, 222, 0.8);
+		box-shadow: 0 0 8px rgba(46, 134, 222, 0.5);
+	}
+	#thirst-icon.low {
+		animation: pulse-blue 1.5s infinite;
+	}
+	
+	/* Stamina */
+	#stamina-icon {
+		border-color: rgba(46, 204, 113, 0.8);
+		box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+		display: none;
+	}
+	#stamina-icon.low {
+		animation: pulse-green 1.5s infinite;
+	}
+	
+	/* Oxygen */
+	#oxygen-icon {
+		border-color: rgba(142, 68, 173, 0.8);
+		box-shadow: 0 0 8px rgba(142, 68, 173, 0.5);
+		display: none;
+	}
+	#oxygen-icon.low {
+		animation: pulse-purple 1.5s infinite;
+	}
+	
+	
+	/* ======================================================
+		Section 5: Vehicle Display & Indicators
+		====================================================== */
+	
+	#vehicle-display {
+		position: absolute;
+		left: 84%;
+		top: 84%;
+		transform: translate(-100%, -100%);
+		transition: opacity 0.3s ease, transform 0.3s ease;
+		width: 300px;
+	}
+	
+	/* Vehicle indicators */
+	.vehicle-indicators {
+		display: flex;
+		justify-content: center;
+		gap: 15px;
+		position: absolute;
+		bottom: 104%;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 10;
+	}
+	
+	.indicator {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(27, 28, 46, 0.65) 50%, rgba(14, 15, 24, 0.65) 100%);
+		border-radius: 10px;
+		color: rgba(255, 255, 255, 0.3);
+		transition: all 0.2s ease;
+		border: 1px solid rgba(27, 28, 46, 0.8);
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+	}
+	
+	.indicator.active {
+		color: white;
+		box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+	}
+	
+	#signal-left.active, #signal-right.active {
+		color: rgba(255, 165, 0, 1);
+		box-shadow: 0 0 10px rgba(255, 166, 0, 0.856);
+	}
+	
+	#lights-indicator.normal {
+		color: rgba(65, 135, 245, 1);
+		box-shadow: 0 0 10px rgba(65, 135, 245, 0.7);
+	}
+	
+	#lights-indicator.high {
+		color: rgba(120, 180, 255, 1);
+		box-shadow: 0 0 10px rgba(120, 180, 255, 0.9);
+	}
+	
+	#seatbelt-indicator.active {
+		color: rgba(255, 215, 0, 1);
+		box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+	}
+	
+	#cruise-indicator.active {
+		color: rgba(123, 44, 191, 1);
+		box-shadow: 0 0 10px rgba(123, 44, 191, 0.7);
+	}
+	
+	
+	/* ======================================================
+		Section 6: Vehicle Main Panel & Info Styling
+		====================================================== */
+	
+	/* Speed container with cubic design */
+	.speed-container {
+	  position: relative;
+	  width: 120px;
+	  height: 120px;
+	  display: flex;
+	  flex-direction: column;
+	  margin-right: 20px;
+	}
+	
+	/* Speed box - the main container for the speedometer */
+	.speed-info {
+	  position: relative;
+	  width: 100%;
+	  height: 100%;
+	  background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(20, 22, 36, 0.65) 100%);
+	  border-radius: 10px;
+	  border: 1px solid rgba(27, 28, 46, 0.8);
+	  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+	  overflow: hidden;
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	}
+	
+	/* Speed value with improved visibility and fixed size */
+	.speed-value-container {
+	  position: relative;
+	  z-index: 2;
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  text-align: center;
+	}
+	
+	#speed-value {
+	  font-size: 60px;
+	  font-weight: 500;
+	  color: white;
+	  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+	  line-height: 1;
+	  padding: 0 10px;
+	  min-width: 100px; /* Ensure consistent width */
+	  text-align: center;
+	}
+	
+	/* Smaller font for three-digit speeds */
+	#speed-value.three-digits {
+	  font-size: 50px;
+	}
+	
+	.speed-unit {
+	  font-size: 18px;
+	  font-weight: 400;
+	  color: rgba(255, 255, 255, 0.7);
+	  margin-top: 5px;
+	}
+	
+	/* Gear display repositioned */
+	.gear-info {
+	  position: absolute;
+	  top: -15px;
+	  right: -15px;
+	  background: linear-gradient(145deg, rgb(14, 15, 24) 0%, rgb(27, 28, 46) 100%);
+	  color: white;
+	  font-size: 18px;
+	  font-weight: 500;
+	  padding: 5px 12px;
+	  border-radius: 8px;
+	  border: 1px solid rgba(27, 28, 46, 0.8);
+	  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+	  z-index: 3;
+	  display: flex;
+	  align-items: center;
+	  gap: 5px;
+	}
+	
+	.gear-info i {
+	  font-size: 14px;
+	  opacity: 0.8;
+	}
+	
+	/* Vehicle main layout updates */
+	.vehicle-main {
+	  display: flex;
+	  justify-content: space-between;
+	  background: linear-gradient(145deg, rgba(15,15,15,0.65) 0%, rgba(16,18,33,0.65) 50%, rgba(21,23,43,0.65) 100%);
+	  border-radius: 10px;
+	  padding: 15px 20px;
+	  margin-bottom: 8px;
+	  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(27, 28, 46, 0.4);
+	  border: 1px solid rgba(27, 28, 46, 0.8);
+	  position: relative;
+	  z-index: 5;
+	  transition: opacity 0.3s ease;
+	}
+	
+	.vehicle-left {
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	}
+	
+	.vehicle-right {
+	  display: flex;
+	  flex-direction: column;
+	  justify-content: center;
+	}
+	
+	/* ======================================================
+		Section 7: Gauges & Progress Bars
+		====================================================== */
+	
+	.vehicle-gauges {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		margin-left: 20px;
+		width: 120px;
+	}
+	
+	.gauge-item {
+		display: flex;
+		flex-direction: column;
+		color: white;
+		margin-bottom: 10px;
+	}
+	
+	.gauge-label {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		margin-bottom: 5px;
+		font-size: 14px;
+		opacity: 0.8;
+	}
+	
+	.progress-container {
+		width: 100%;
+		height: 8px;
+		background-color: rgba(255, 255, 255, 0.1);
+		border-radius: 4px;
+		overflow: hidden;
+	}
+	
+	.progress-bar {
+		height: 100%;
+		border-radius: 4px;
+		transition: width 0.3s ease-out;
+	}
+	
+	#fuel-progress {
+		background-color: rgba(52, 211, 153, 1);
+	}
+	
+	#fuel-progress.low {
+		background-color: rgba(239, 68, 68, 1);
+	}
+	
+	#damage-progress {
+		background-color: rgba(209, 213, 219, 1);
+	}
+	
+	#damage-progress.low {
+		background-color: rgba(239, 68, 68, 1);
+	}
+	
+	#rpm-progress {
+		background-color: rgba(99, 102, 241, 1);
+	}
+	
+	#rpm-progress.high {
+		background-color: rgba(239, 68, 68, 1);
+	}
+	
+	.status-box.in-vehicle {
+		transform: translateX(27vh);
+		transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+	}
+	
+	/* ======================================================
+		Section 8: Location Display
+		====================================================== */
+	
+	#location-display {
+		position: absolute;
+		top: 0.6vh;
+		left: 43.5%;
+		transform: translateX(-43.5%);
+		transition: opacity 0.5s ease;
+		width: auto;
+		max-width: 90vw;
+	}
+	
+	.location-wrapper {
+		background: linear-gradient(145deg, rgba(15,15,15,0.65) 0%, rgba(16,18,33,0.65) 50%, rgba(21,23,43,0.65) 100%);
+		border-radius: 10px;
+		padding: 7px 10px;
+		color: white;
+		font-size: 18px;
+		font-weight: 400;
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(27, 28, 46, 0.4);
+		border: 1px solid rgba(27, 28, 46, 0.8);
+		text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+		letter-spacing: 0.5px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	.separator {
+		margin: 0 8px;
+		opacity: 0.5;
+	}
+	
+	.hidden {
+		opacity: 0;
+		transform: translateY(10px);
+		pointer-events: none;
+	}
+	
+	
 /* ======================================================
-	Section 2: Body & Main Container Styling
+	Section 9: Animations & Animation Classes
 	====================================================== */
 
-body {
-	overflow: hidden;
-	width: 100vw;
-	height: 100vh;
-}
-
-#main-container {
-	position: relative;
-	width: 100%;
-	height: 100%;
-	transition: opacity 0.3s ease;
-}
-
-
-/* ======================================================
-	Section 3: Status Icons & Box Styling
-	====================================================== */
-
-#status-icons {
-	position: absolute;
-	left: 1vw;
-	bottom: 1vh;
-}
-
-.status-box {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 12px 15px;
-	background: linear-gradient(145deg, rgba(15,15,15,0.85) 0%, rgba(16,18,33,0.85) 50%, rgba(21,23,43,0.85) 100%);
-	border-radius: 10px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(27, 28, 46, 0.4);
-	border: 1px solid rgba(27, 28, 46, 0.8);
-}
-
-.status-icon-wrap {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 42px;
-	height: 42px;
-	border-radius: 50%;
-	color: white;
-	border: 2px solid rgba(255, 255, 255, 0.2);
-	transition: all 0.3s ease;
-}
-
-.status-icon-wrap i {
-	font-size: 18px;
-}
-
-.status-value {
-	position: absolute;
-	bottom: -7px;
-	right: -5px;
-	background: linear-gradient(145deg, rgb(14, 15, 24) 0%, rgb(27, 28, 46) 50%, rgb(14, 15, 24) 100%);
-	color: white;
-	font-size: 12px;
-	font-weight: 600;
-	padding: 2px 6px;
-	border-radius: 4px;
-	min-width: 24px;
-	text-align: center;
-	border: 1px solid rgba(27, 28, 46, 0.8);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-
-/* ======================================================
-	Section 4: Status Icon Specific Colors & Animations
-	====================================================== */
-
-/* Health */
-#health-icon {
-	border-color: rgba(255, 59, 59, 0.8);
-	box-shadow: 0 0 8px rgba(255, 59, 59, 0.5);
-}
-#health-icon.low {
-	animation: pulse-red 1.5s infinite;
-}
-
-/* Armor */
-#armor-icon {
-	border-color: rgba(65, 135, 245, 0.8);
-	box-shadow: 0 0 8px rgba(65, 135, 245, 0.5);
-	display: flex;
-}
-
-/* Hunger */
-#hunger-icon {
-	border-color: rgba(255, 165, 0, 0.8);
-	box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
-}
-#hunger-icon.low {
-	animation: pulse-orange 1.5s infinite;
-}
-
-/* Thirst */
-#thirst-icon {
-	border-color: rgba(46, 134, 222, 0.8);
-	box-shadow: 0 0 8px rgba(46, 134, 222, 0.5);
-}
-#thirst-icon.low {
-	animation: pulse-blue 1.5s infinite;
-}
-
-/* Stamina */
-#stamina-icon {
-	border-color: rgba(46, 204, 113, 0.8);
-	box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
-	display: none;
-}
-
-/* Oxygen */
-#oxygen-icon {
-	border-color: rgba(142, 68, 173, 0.8);
-	box-shadow: 0 0 8px rgba(142, 68, 173, 0.5);
-	display: none;
-}
-
-
-/* ======================================================
-	Section 5: Vehicle Display & Indicators
-	====================================================== */
-
-#vehicle-display {
-	position: absolute;
-	left: 84%;
-	top: 84%;
-	transform: translate(-100%, -100%);
-	transition: opacity 0.3s ease, transform 0.3s ease;
-	width: 300px;
-}
-
-/* Vehicle indicators */
-.vehicle-indicators {
-	display: flex;
-	justify-content: center;
-	gap: 15px;
-	position: absolute;
-	bottom: 104%;
-	left: 50%;
-	transform: translateX(-50%);
-	z-index: 10;
-}
-
-.indicator {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	background: linear-gradient(145deg, rgb(14, 15, 24) 0%, rgb(27, 28, 46) 50%, rgb(14, 15, 24) 100%);
-	border-radius: 50%;
-	color: rgba(255, 255, 255, 0.3);
-	transition: all 0.2s ease;
-	border: 1px solid rgba(27, 28, 46, 0.8);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-
-.indicator.active {
-	color: white;
-	box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-}
-
-#signal-left.active, #signal-right.active {
-	color: rgba(255, 165, 0, 1);
-	box-shadow: 0 0 10px rgba(255, 166, 0, 0.856);
-}
-
-#lights-indicator.normal {
-	color: rgba(65, 135, 245, 1);
-	box-shadow: 0 0 10px rgba(65, 135, 245, 0.7);
-}
-
-#lights-indicator.high {
-	color: rgba(120, 180, 255, 1);
-	box-shadow: 0 0 10px rgba(120, 180, 255, 0.9);
-}
-
-#seatbelt-indicator.active {
-	color: rgba(255, 215, 0, 1);
-	box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-}
-
-#cruise-indicator.active {
-	color: rgba(123, 44, 191, 1);
-	box-shadow: 0 0 10px rgba(123, 44, 191, 0.7);
-}
-
-
-/* ======================================================
-	Section 6: Vehicle Main Panel & Info Styling
-	====================================================== */
-
-.vehicle-main {
-	display: flex;
-	justify-content: space-between;
-	background: linear-gradient(145deg, rgba(15,15,15,0.85) 0%, rgba(16,18,33,0.85) 50%, rgba(21,23,43,0.85) 100%);
-	border-radius: 10px;
-	padding: 15px 20px;
-	margin-bottom: 8px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(27, 28, 46, 0.4);
-	border: 1px solid rgba(27, 28, 46, 0.8);
-	position: relative;
-	z-index: 5;
-}
-
-.vehicle-info {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.speed-info {
-	display: flex;
-	align-items: baseline;
-	color: white;
-}
-
-/* Fixed width speed display to prevent jumping */
-#speed-value {
-	font-size: 96px;
-	font-weight: 400;
-	letter-spacing: -1px;
-	line-height: 1;
-	text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-	width: 100px;
-	text-align: right;
-	position: absolute;
-	bottom: 5%;
-	left: 0%;
-}
-
-.speed-unit {
-	font-size: 38px;
-	margin-left: 8px;
-	opacity: 0.7;
-	width: 50px;
-	position: absolute;
-	bottom: 0%;
-	left: 50%;
-	transform: translateX(-50%);
-}
-
-.speed-secondary {
-	display: flex;
-	gap: 20px;
-}
-
-.gear-info {
-	display: flex;
-	position: absolute;
-	align-items: center;
-	color: white;
-	font-size: 30px;
-	font-weight: 400;
-	gap: 8px;
-	top: 5%;
-	right: 35%;
-}
-
-.rpm-info {
-	display: flex;
-	align-items: center;
-	color: white;
-	font-size: 20px;
-	font-weight: 300;
-	gap: 8px;
-}
-
-.gear-info i {
-	font-size: 24px;
-	opacity: 0.7;
-}
-.rpm-info i {
-	font-size: 14px;
-	opacity: 0.7;
-}
-
-/* ======================================================
-	Section 7: Gauges & Progress Bars
-	====================================================== */
-
-.vehicle-gauges {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-	margin-left: 20px;
-	width: 120px;
-}
-
-.gauge-item {
-	display: flex;
-	flex-direction: column;
-	color: white;
-	margin-bottom: 10px;
-}
-
-.gauge-label {
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	margin-bottom: 5px;
-	font-size: 14px;
-}
-
-.gauge-label i {
-	font-size: 14px;
-	opacity: 0.8;
-}
-
-.progress-container {
-	width: 100%;
-	height: 8px;
-	background-color: rgba(255, 255, 255, 0.1);
-	border-radius: 4px;
-	overflow: hidden;
-}
-
-.progress-bar {
-	height: 100%;
-	border-radius: 4px;
-	transition: width 0.3s ease-out;
-}
-
-#fuel-progress {
-	background-color: rgba(52, 211, 153, 1);
-}
-
-#fuel-progress.low {
-	background-color: rgba(239, 68, 68, 1);
-}
-
-#damage-progress {
-	background-color: rgba(209, 213, 219, 1);
-}
-
-#damage-progress.low {
-	background-color: rgba(239, 68, 68, 1);
-}
-
-#rpm-progress {
-	background-color: rgba(99, 102, 241, 1);
-}
-
-#rpm-progress.high {
-	background-color: rgba(239, 68, 68, 1);
-}
-
-
-/* ======================================================
-	Section 8: Location Display
-	====================================================== */
-
-#location-display {
-	position: absolute;
-	bottom: 0.6vh;
-	left: 44%;
-	transform: translateX(-50%);
-	transition: opacity 0.3s ease;
-	width: auto;
-	max-width: 90vw;
-}
-
-.location-wrapper {
-	background: linear-gradient(145deg, rgba(15,15,15,0.85) 0%, rgba(16,18,33,0.85) 50%, rgba(21,23,43,0.85) 100%);
-	border-radius: 10px;
-	padding: 7px 10px;
-	color: white;
-	font-size: 18px;
-	font-weight: 400;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(27, 28, 46, 0.4);
-	border: 1px solid rgba(27, 28, 46, 0.8);
-	text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
-	letter-spacing: 0.5px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.separator {
-	margin: 0 8px;
-	opacity: 0.5;
-}
-
-.hidden {
-	opacity: 0;
-	transform: translateY(10px);
-	pointer-events: none;
-}
-
-
-/* ======================================================
-	Section 9: Animations
-	====================================================== */
-
-@keyframes pulse-red {
-	0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); }
-	70% { box-shadow: 0 0 0 8px rgba(255, 59, 59, 0); }
-	100% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
-}
-
-@keyframes pulse-orange {
-	0% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
-	70% { box-shadow: 0 0 0 8px rgba(255, 165, 0, 0); }
-	100% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
-}
-
-@keyframes pulse-blue {
-	0% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0.7); }
-	70% { box-shadow: 0 0 0 8px rgba(46, 134, 222, 0); }
-	100% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0); }
-}
-
-@keyframes pulse-text-red {
-	0% { opacity: 1; }
-	50% { opacity: 0.5; }
-	100% { opacity: 1; }
-}
-
-@keyframes blink {
-	80% { color: transparent; }
-	40% { color: rgba(255, 165, 0, 1); }
-}
-
-.blinking {
-	animation: blink 1s infinite;
-}
-
-@keyframes hide {
-	0% { opacity: 1; transform: translateY(0); }
-	100% { opacity: 0; transform: translateY(10px); }
-}
-
-@keyframes show {
-	0% { opacity: 0; transform: translateY(10px); }
-	100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes hide-show {
-	0% { opacity: 1; transform: translateY(0); }
-	50% { opacity: 0; transform: translateY(10px); }
-	100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes show-hide {
-	0% { opacity: 0; transform: translateY(10px); }
-	50% { opacity: 1; transform: translateY(0); }
-	100% { opacity: 0; transform: translateY(10px); }
-}
+	@keyframes pulse-red {
+		0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); }
+		70% { box-shadow: 0 0 0 8px rgba(255, 59, 59, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
+	}
+	
+	@keyframes pulse-orange {
+		0% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
+		70% { box-shadow: 0 0 0 8px rgba(255, 165, 0, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
+	}
+	
+	@keyframes pulse-blue {
+		0% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0.7); }
+		70% { box-shadow: 0 0 0 8px rgba(46, 134, 222, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0); }
+	}
+	
+	@keyframes pulse-green {
+		0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+		70% { box-shadow: 0 0 0 8px rgba(46, 204, 113, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+	}
+	
+	@keyframes pulse-purple {
+		0% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.7); }
+		70% { box-shadow: 0 0 0 8px rgba(142, 68, 173, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0); }
+	}
+	
+	@keyframes pulse-text-red {
+		0% { opacity: 1; }
+		50% { opacity: 0.5; }
+		100% { opacity: 1; }
+	}
+	
+	@keyframes blink {
+		80% { color: transparent; }
+		40% { color: rgba(255, 165, 0, 1); }
+	}
+	
+	.blinking {
+		animation: blink 1s infinite;
+	}
+	
+	@keyframes hide {
+		0% { opacity: 1; transform: translateY(0); }
+		100% { opacity: 0; transform: translateY(10px); }
+	}
+	
+	@keyframes show {
+		0% { opacity: 0; transform: translateY(10px); }
+		100% { opacity: 1; transform: translateY(0); }
+	}
+	
+	@keyframes hide-show {
+		0% { opacity: 1; transform: translateY(0); }
+		50% { opacity: 0; transform: translateY(10px); }
+		100% { opacity: 1; transform: translateY(0); }
+	}
+	
+	@keyframes show-hide {
+		0% { opacity: 0; transform: translateY(10px); }
+		50% { opacity: 1; transform: translateY(0); }
+		100% { opacity: 0; transform: translateY(10px); }
+	}
+	
+	/* Classes for toggleStatusIcon animation function */
+	.show-hide {
+		animation: show 0.5s ease-in-out forwards;
+	}
+	
+	.appearing {
+		animation: show 0.5s ease-in-out forwards;
+	}
+	
+	.disappearing {
+		animation: hide 0.5s ease-in-out forwards;
+	}
+	
+	/* ======================================================
+		Section 10: Low Status Screen Effects
+		====================================================== */
+		
+	.oxygen-effect {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.7) 100%);
+		pointer-events: none;
+		z-index: 9999;
+		opacity: 0;
+		transition: opacity 1s ease;
+	}
+	
+	.oxygen-effect.active {
+		opacity: 1;
+		animation: pulse-oxygen 2s infinite;
+	}
+	
+	@keyframes pulse-oxygen {
+		0% { opacity: 0.3; }
+		50% { opacity: 0.7; }
+		100% { opacity: 0.3; }
+	}
+	
+	.hunger-effect, .thirst-effect {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		pointer-events: none;
+		z-index: 9998;
+		opacity: 0;
+		transition: opacity 0.5s ease;
+	}
+	
+	.hunger-effect {
+		background: radial-gradient(circle, transparent 70%, rgba(255, 165, 0, 0.2) 100%);
+	}
+	
+	.thirst-effect {
+		background: radial-gradient(circle, transparent 70%, rgba(46, 134, 222, 0.2) 100%);
+	}
+	
+	.hunger-effect.active, .thirst-effect.active {
+		opacity: 1;
+	}
+
+	#microphone-icon {
+		border-color: rgba(120, 81, 169, 0.8);
+		box-shadow: 0 0 8px rgba(120, 81, 169, 0.5);
+		display: none;
+	}
+
+	#microphone-icon.active {
+		transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+		animation: pulse-mic 0.5s infinite;
+		display: flex;
+	}
+
+	  @keyframes pulse-mic {
+		0% { box-shadow: 0 0 0 0 rgba(120, 81, 169, 0.7); }
+		70% { box-shadow: 0 0 0 8px rgba(120, 81, 169, 0); }
+		100% { box-shadow: 0 0 0 0 rgba(120, 81, 169, 0); }
+	  }

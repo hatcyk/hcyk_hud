@@ -1,57 +1,63 @@
 Config = {}
 
--- Vehicle configuration
 Config.vehicle = {
-    speedUnit = 'MPH', -- MPH or KMH
-    maxSpeed = 200,    -- Maximum speed for the speedometer (visual only)
+    speedUnit = 'MPH', 
+    maxSpeed = 200,    
 
     seatbelt = {
         playBuckleSound = true,
         playUnbuckleSound = true,
-        ejectSpeed = 45.0,       -- Speed threshold for ejection (in speedUnit)
-        ejectAcceleration = 100.0 -- Acceleration threshold for ejection
+        ejectSpeed = 35.0,       -- Speed in MPH that would eject player when crashing
+        ejectAcceleration = 1000.0 -- Acceleration threshold for detecting crashes
     },
 
     fuel = {
-        warningLevel = 20, -- Percentage at which to show low fuel warning
+        warningLevel = 20,
     },
 
     damage = {
-        warningLevel = 35, -- Percentage at which to show vehicle damage warning
+        warningLevel = 35,
     }
 }
 
--- HUD configuration
 Config.hud = {
     defaultVisible = true,
     showStreetsOnFoot = false,
-    updateInterval = 150 -- milliseconds between HUD updates
+    updateInterval = 150 
 }
 
--- Notification system configuration
 Config.notifications = {
-    duration = 3500, -- Default notification duration in ms
-    position = 'top-right' -- Options: 'top-right', 'top-left', 'bottom-right', 'bottom-left'
+    duration = 3500,
+    position = 'top' 
 }
 
--- Cruise control configuration
 Config.cruiseControl = {
-    incrementStep = 5, -- Speed increment/decrement step for cruise control adjustments
-    allowAdjustment = true -- Allow adjusting cruise control speed up/down
+    incrementStep = 5,
+    allowAdjustment = true 
 }
 
--- Feature toggles
 Config.features = {
-    showDamageWarning = true, -- Show warning when vehicle is damaged
-    showFuelWarning = true,   -- Show warning when fuel is low
-    showSpeedLimiter = true,  -- Show speed limiter indicator
-    dynamicCompass = true    -- Enable dynamic compass (shows exact degrees)
+    showDamageWarning = true,
+    showFuelWarning = true,  
+    showSpeedLimiter = true, 
+    dynamicCompass = true,   -- Set to true to show direction without degrees
+    
+    -- Status thresholds for notifications and effects
+    thresholds = {
+        health = 25,
+        hunger = 25,
+        thirst = 25,
+        stamina = 25,
+        oxygen = 25
+    },
+    
+    -- Notification cooldowns (in ms)
+    notifyCooldown = 60000 -- 60 seconds between notifications for the same status
 }
 
--- Key bindings
 Config.keys = {
     seatbelt = "b",
-    cruiseControl = "CAPS", -- Changed from "m" to "CAPS"
+    cruiseControl = "CAPITAL", 
     turnLeft = "LEFT",
     turnRight = "RIGHT",
     hazardLights = "DOWN",

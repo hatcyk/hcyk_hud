@@ -12,9 +12,12 @@ ui_page 'html/index.html'
 
 client_scripts {
     'config.lua',
-    'modules/cruise.lua',
-    'modules/postals.lua',
     'modules/utils.lua',
+    'modules/postals.lua',
+    'modules/seatbelt.lua',
+    'modules/cruise.lua',
+    'modules/vehicle.lua',
+    'modules/hud.lua',
     'client.lua'
 }
 

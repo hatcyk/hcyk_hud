@@ -1,4 +1,4 @@
-RegisterServerEvent('tgr:syncCarLights')
-AddEventHandler('tgr:syncCarLights', function(status)
-    TriggerClientEvent('tgr:syncCarLights', -1, source, status)
+RegisterServerEvent('hcyk_hud:syncCarLights')
+AddEventHandler('hcyk_hud:syncCarLights', function(status)
+    TriggerClientEvent('hcyk_hud:syncCarLights', -1, source, status)
 end)
