@@ -1,84 +1,94 @@
--- Test commands for debugging HUD effects
--- Add these at the end of your file
+-- Debug test commands for HUD system
+-- Only active when Config.Debug is true
 
--- Add debug test commands
+local function IsDebugEnabled()
+    return Config.Debug == true
+end
+
+-- Register debug commands only if debug is enabled
 Citizen.CreateThread(function()
-    if not Config.Debug then return end  -- Only register these if debug mode is enabled
+    if not IsDebugEnabled() then 
+        return 
+    end
     
     -- Test drunk effect
-    RegisterCommand('test_drunk', function(source, args)
+    RegisterCommand('testdrunk', function(source, args)
         local level = tonumber(args[1]) or 50
-        drunkLevel = math.min(100, math.max(0, level))
-        exports['okokNotify']:Alert('Debug', 'Drunk level set to: ' .. drunkLevel, 3000, 'info')
+        level = math.min(100, math.max(0, level))
+        TriggerEvent('hcyk_hud:setDrunkLevel', level)
+        exports['okokNotify']:Alert('Debug', 'Opilost nastavena na: ' .. level, 3000, 'info')
     end, false)
     
     -- Test health effect
-    RegisterCommand('test_health', function(source, args)
+    RegisterCommand('testhealth', function(source, args)
         local level = tonumber(args[1]) or 15
         level = math.min(200, math.max(0, level))
         SetEntityHealth(PlayerPedId(), level + 100)  -- +100 because game health starts at 100
-        exports['okokNotify']:Alert('Debug', 'Health set to: ' .. level, 3000, 'info')
+        exports['okokNotify']:Alert('Debug', 'Zdraví nastaveno na: ' .. level, 3000, 'info')
     end, false)
     
     -- Test hunger effect
-    RegisterCommand('test_hunger', function(source, args)
+    RegisterCommand('testhunger', function(source, args)
         local level = tonumber(args[1]) or 15
         level = math.min(100, math.max(0, level))
         TriggerEvent('esx_status:set', 'hunger', level * 10000)  -- ESX status uses 0-1000000
-        exports['okokNotify']:Alert('Debug', 'Hunger set to: ' .. level .. '%', 3000, 'info')
+        exports['okokNotify']:Alert('Debug', 'Hlad nastaven na: ' .. level .. '%', 3000, 'info')
     end, false)
     
     -- Test thirst effect
-    RegisterCommand('test_thirst', function(source, args)
+    RegisterCommand('testthirst', function(source, args)
         local level = tonumber(args[1]) or 15
         level = math.min(100, math.max(0, level))
         TriggerEvent('esx_status:set', 'thirst', level * 10000)  -- ESX status uses 0-1000000
-        exports['okokNotify']:Alert('Debug', 'Thirst set to: ' .. level .. '%', 3000, 'info')
+        exports['okokNotify']:Alert('Debug', 'Žízeň nastavena na: ' .. level .. '%', 3000, 'info')
     end, false)
     
-    -- Test oxygen effect (simulates underwater)
-    RegisterCommand('test_oxygen', function(source, args)
+    -- Test oxygen effect
+    RegisterCommand('testoxygen', function(source, args)
         local level = tonumber(args[1]) or 15
         
-        -- Create temporary thread to simulate oxygen depletion
+        -- Create thread to simulate oxygen depletion
         Citizen.CreateThread(function()
+            -- Store original oxygen
             local originalOxygen = GetPlayerUnderwaterTimeRemaining(PlayerId())
-            SetPlayerUnderwaterTime(PlayerId(), level / 10)  -- Convert percent to seconds (divided by 10)
             
-            -- Force oxygen display by simulating underwater
-            local originalCoords = GetEntityCoords(PlayerPedId())
-            SetPedConfigFlag(PlayerPedId(), 65, true)  -- Set underwater flag
+            -- Set underwater time (max is around 20.0 seconds)
+            SetPlayerUnderwaterTime(PlayerId(), level / 10)
             
-            exports['okokNotify']:Alert('Debug', 'Oxygen set to: ' .. level .. '%', 3000, 'info')
-            exports['okokNotify']:Alert('Debug', 'Will reset in 10 seconds', 3000, 'warning')
+            -- Force underwater state using a ped flag
+            local ped = PlayerPedId()
+            SetPedConfigFlag(ped, 65, true)  -- Set underwater flag
+            
+            exports['okokNotify']:Alert('Debug', 'Kyslík nastaven na: ' .. level .. '%', 3000, 'info')
+            exports['okokNotify']:Alert('Debug', 'Resetování za 10 sekund', 3000, 'warning')
             
             Citizen.Wait(10000)  -- Reset after 10 seconds
             
             -- Reset oxygen and ped config
             SetPlayerUnderwaterTime(PlayerId(), originalOxygen)
-            SetPedConfigFlag(PlayerPedId(), 65, false)
+            SetPedConfigFlag(ped, 65, false)
             
-            exports['okokNotify']:Alert('Debug', 'Oxygen test complete', 3000, 'success')
+            exports['okokNotify']:Alert('Debug', 'Test kyslíku dokončen', 3000, 'success')
         end)
     end, false)
     
     -- Test HUD toggle
-    RegisterCommand('test_hud', function(source, args)
+    RegisterCommand('testhud', function(source, args)
         local state = args[1]
         if state == "show" then
-            toggleHud(true)
-            exports['okokNotify']:Alert('Debug', 'HUD shown', 3000, 'info')
+            ExecuteCommand("hud")
+            exports['okokNotify']:Alert('Debug', 'HUD zobrazen', 3000, 'info')
         elseif state == "hide" then
-            toggleHud(false)
-            exports['okokNotify']:Alert('Debug', 'HUD hidden', 3000, 'info')
+            ExecuteCommand("hud")
+            exports['okokNotify']:Alert('Debug', 'HUD skryt', 3000, 'info')
         else
-            toggleHud(not uivisible)
-            exports['okokNotify']:Alert('Debug', 'HUD toggled: ' .. (uivisible and 'visible' or 'hidden'), 3000, 'info')
+            ExecuteCommand("hud")
+            exports['okokNotify']:Alert('Debug', 'HUD přepnut', 3000, 'info')
         end
     end, false)
     
     -- Reset all effects to normal
-    RegisterCommand('test_reset', function()
+    RegisterCommand('testreset', function()
         -- Reset health
         SetEntityHealth(PlayerPedId(), 200)
         
@@ -87,46 +97,59 @@ Citizen.CreateThread(function()
         TriggerEvent('esx_status:set', 'thirst', 1000000)
         
         -- Reset drunk
-        drunkLevel = 0
+        TriggerEvent('hcyk_hud:setDrunkLevel', 0)
         
         -- Reset oxygen
         SetPlayerUnderwaterTime(PlayerId(), 20.0)
+        SetPedConfigFlag(PlayerPedId(), 65, false)
         
         -- Reset movement
-        if healthEffect or drunkEffect then
-            ResetPedMovementClipset(PlayerPedId(), 0)
-            SetPedMoveRateOverride(PlayerPedId(), 1.0)
-            healthEffect = false
-            drunkEffect = false
-        end
+        ResetPedMovementClipset(PlayerPedId(), 0)
+        SetPedMoveRateOverride(PlayerPedId(), 1.0)
         
         -- Stop screen effects
         StopGameplayCamShaking(true)
         StopScreenEffect("DeathFailOut")
         ClearTimecycleModifier()
         
-        exports['okokNotify']:Alert('Debug', 'All effects have been reset', 3000, 'success')
+        exports['okokNotify']:Alert('Debug', 'Všechny efekty byly resetovány', 3000, 'success')
     end, false)
     
+    -- Add event handler for drunk level
+    RegisterNetEvent('hcyk_hud:setDrunkLevel')
+    AddEventHandler('hcyk_hud:setDrunkLevel', function(level)
+        if type(level) ~= "number" then return end
+        drunkLevel = math.min(100, math.max(0, level))
+    end)
+    
     -- Display help message for debug commands
-    RegisterCommand('test_help', function()
+    RegisterCommand('testhelp', function()
         TriggerEvent('chat:addMessage', {
             color = {255, 200, 0},
             multiline = true,
             args = {
                 'HUD Debug Commands:',
-                '/test_drunk [0-100] - Set drunk level\n' ..
-                '/test_health [0-200] - Set health level\n' ..
-                '/test_hunger [0-100] - Set hunger level\n' ..
-                '/test_thirst [0-100] - Set thirst level\n' ..
-                '/test_oxygen [0-100] - Test oxygen depletion\n' ..
-                '/test_hud [show/hide] - Toggle HUD visibility\n' ..
-                '/test_reset - Reset all effects to normal'
+                '/testdrunk [0-100] - Nastavit úroveň opilosti\n' ..
+                '/testhealth [0-200] - Nastavit úroveň zdraví\n' ..
+                '/testhunger [0-100] - Nastavit úroveň hladu\n' ..
+                '/testthirst [0-100] - Nastavit úroveň žízně\n' ..
+                '/testoxygen [0-100] - Test úbytku kyslíku\n' ..
+                '/testhud [show/hide] - Přepnout viditelnost HUD\n' ..
+                '/testreset - Resetovat všechny efekty'
             }
         })
     end, false)
     
     -- Notify that debug commands are available
     Citizen.Wait(5000) -- Wait for resources to load
-    exports['okokNotify']:Alert('Debug', 'HUD debug commands available. Type /test_help for list.', 5000, 'info')
+    exports['okokNotify']:Alert('Debug', 'HUD debug příkazy jsou k dispozici. Napiš /testhelp pro seznam.', 5000, 'info')
+end)
+
+-- Add exports for other scripts to use
+exports('SetDrunkLevel', function(level)
+    if IsDebugEnabled() or level == nil then
+        TriggerEvent('hcyk_hud:setDrunkLevel', level)
+        return true
+    end
+    return false
 end)

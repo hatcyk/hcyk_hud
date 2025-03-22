@@ -368,6 +368,18 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- Add event handler to set drunk level from other scripts
+RegisterNetEvent('hcyk_hud:setDrunkLevel')
+AddEventHandler('hcyk_hud:setDrunkLevel', function(level)
+    if type(level) ~= "number" then return end
+    drunkLevel = math.min(100, math.max(0, level))
+end)
+
+-- Export function to set drunk level
+exports('SetDrunkLevel', function(level)
+    TriggerEvent('hcyk_hud:setDrunkLevel', level)
+end)
+
 -- Create blip-less minimap
 CreateThread(function()
     Wait(1000)
