@@ -21,7 +21,8 @@ let state = {
     isUnderwater: false,
     isTalking: false,
     voiceRange: 66,
-    isTalkingOnRadio: false
+    isTalkingOnRadio: false,
+    drunk: 0
   },
   location: {
     street: '',
@@ -121,7 +122,9 @@ const components = {
   timeValue: document.getElementById('time-value'),
   directionValue: document.getElementById('direction-value'),
   streetValue: document.getElementById('street-value'),
-  postalValue: document.getElementById('postal-value')
+  postalValue: document.getElementById('postal-value'),
+  drunkIcon: document.getElementById('drunk-icon'),
+  drunkValue: document.getElementById('drunk-value')
 };
 
 // Create screen effects elements
@@ -144,10 +147,24 @@ function createScreenEffects() {
   thirstEffect.id = 'thirst-effect';
   document.body.appendChild(thirstEffect);
   
+  // Create health effect
+  const healthEffect = document.createElement('div');
+  healthEffect.className = 'health-effect';
+  healthEffect.id = 'health-effect';
+  document.body.appendChild(healthEffect);
+  
+  // Create drunk effect
+  const drunkEffect = document.createElement('div');
+  drunkEffect.className = 'drunk-effect';
+  drunkEffect.id = 'drunk-effect';
+  document.body.appendChild(drunkEffect);
+  
   // Add to components
   components.oxygenEffect = oxygenEffect;
   components.hungerEffect = hungerEffect;
   components.thirstEffect = thirstEffect;
+  components.healthEffect = healthEffect;
+  components.drunkEffect = drunkEffect;
 }
 
 function updateHUD() {
@@ -327,6 +344,23 @@ function updateHUD() {
       animations.fadeOut(components.locationDisplay);
     }
   }
+  
+  // Update health effect
+  if (components.healthEffect) {
+    components.healthEffect.classList.toggle('active', state.player.health < 20);
+  }
+  
+  // Update drunk status
+  if (components.drunkIcon && state.player.drunk !== undefined) {
+    components.drunkValue.textContent = Math.round(state.player.drunk);
+    animations.toggleStatusIcon(components.drunkIcon, state.player.drunk > 0);
+    components.drunkIcon.classList.toggle('active', state.player.drunk > 0);
+    
+    // Toggle drunk effect
+    if (components.drunkEffect) {
+      components.drunkEffect.classList.toggle('active', state.player.drunk > 30);
+    }
+  }
 }
 
 window.addEventListener('message', function(event) {
@@ -364,6 +398,8 @@ window.addEventListener('message', function(event) {
         .catch(error => {
           updateHUD();
         });
+      
+      state.player.drunk = data.drunk || 0;
       
       break;
       

@@ -29,6 +29,12 @@ local notifyCooldown = 60000 -- 60 seconds cooldown
 -- Low oxygen screen effect state
 local oxygenEffectActive = false
 
+-- Add to your variables at the top
+local drunkLevel = 0
+local lastDrunkUpdate = 0
+local drunkEffect = false
+local healthEffect = false
+
 -- Update street name, compass direction, postal code and time
 function updateStreetInfo()
     local player = PlayerPedId()
@@ -301,10 +307,64 @@ Citizen.CreateThread(function()
                     thirst = thirstPercent,
                     stamina = stamina,
                     oxygen = oxygen,
-                    isUnderwater = isUnderwater
+                    isUnderwater = isUnderwater,
+                    drunk = drunkLevel -- Add this line
                 })
             end)
         end)
+    end
+end)
+
+-- Add health and drunk screen effects
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(500)
+        local ped = PlayerPedId()
+        local health = GetEntityHealth(ped) - 100
+        
+        -- Handle low health effects
+        if health < 20 and not healthEffect then
+            healthEffect = true
+            -- Make player walk slower
+            SetPedMoveRateOverride(ped, 0.7)
+            RequestAnimSet("move_m@injured")
+            while not HasAnimSetLoaded("move_m@injured") do
+                Citizen.Wait(100)
+            end
+            SetPedMovementClipset(ped, "move_m@injured", 1.0)
+        elseif health >= 20 and healthEffect then
+            healthEffect = false
+            SetPedMoveRateOverride(ped, 1.0)
+            ResetPedMovementClipset(ped, 0)
+        end
+        
+        -- Handle drunk effects
+        if drunkLevel > 30 and not drunkEffect then
+            drunkEffect = true
+            -- Apply drunk walking style
+            RequestAnimSet("move_m@drunk@verydrunk")
+            while not HasAnimSetLoaded("move_m@drunk@verydrunk") do
+                Citizen.Wait(100)
+            end
+            SetPedMovementClipset(ped, "move_m@drunk@verydrunk", 1.0)
+            
+            -- Add screen shaking for drunk effect
+            ShakeGameplayCam("DRUNK_SHAKE", 1.0)
+        elseif drunkLevel <= 30 and drunkEffect then
+            drunkEffect = false
+            ResetPedMovementClipset(ped, 0)
+            StopGameplayCamShaking(true)
+        end
+    end
+end)
+
+-- Add drunk level decay over time
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(10000) -- Check every 10 seconds
+        if drunkLevel > 0 then
+            drunkLevel = math.max(0, drunkLevel - 2) -- Reduce drunk level by 2 every 10 seconds
+        end
     end
 end)
 
@@ -344,6 +404,7 @@ exports('UpdateStreetInfo', updateStreetInfo)
 exports('UpdateHud', updateHud)
 exports('GetHudVisibility', function() return uivisible end)
 exports('togglehud', toggleHud)
+exports('DrinkAlcohol', DrinkAlcohol)
 
 -- Register key bindings
 exports['I']:RegisterKeyMap('hud','(~HUD_COLOUR_YELLOWLIGHT~HUD~w~) - Skrýt/zobrazit HUD', 'F11')
@@ -364,3 +425,16 @@ RegisterCommand('-hud:bigmap', function()
         updateHud()
     end
 end)
+
+-- Add function to handle drinking alcohol
+function DrinkAlcohol(amount)
+    drunkLevel = math.min(100, drunkLevel + amount)
+    lastDrunkUpdate = GetGameTimer()
+    
+    -- Notify the player they're getting drunk
+    if drunkLevel > 70 then
+        exports['okokNotify']:Alert('Hud', 'Jsi úplně opilý!', 4500, 'warning')
+    elseif drunkLevel > 30 then
+        exports['okokNotify']:Alert('Hud', 'Začínáš být opilý', 4500, 'info')
+    end
+end
