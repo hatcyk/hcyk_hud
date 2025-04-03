@@ -353,14 +353,21 @@ exports['I']:RegisterKeyMap('+hud:bigmap','(~HUD_COLOUR_YELLOWLIGHT~HUD~w~) - Ve
 RegisterCommand('+hud:bigmap', function()
     if IsPedInAnyVehicle(PlayerPedId(), false) then
         SetBigmapActive(true, false)
-        toggleHud(false)
+        toggleHud(true)
+        SendNUIMessage({
+            name = "bigmap",
+            active = true
+        })
     end
 end)
 
 RegisterCommand('-hud:bigmap', function()
     SetBigmapActive(false, false)
     if IsPedInAnyVehicle(PlayerPedId(), false) then
-        toggleHud(true)
+        SendNUIMessage({
+            name = "bigmap",
+            active = false
+        })
         updateHud()
     end
 end)

@@ -86,10 +86,11 @@ AddEventHandler("baseevents:leftVehicle", function(veh)
         exports["hcyk_hud"]:ResetVehicleMaxSpeed(veh)
     end
     
-    -- Update vehicle state
+    -- Reset signals when exiting vehicle
     exports["hcyk_hud"]:SetVehicleState({
         cruiser = 'off',
-        engine = false
+        engine = false,
+        signals = 'off'
     })
 end)
 

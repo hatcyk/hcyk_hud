@@ -79,30 +79,63 @@ exports['I']:RegisterKeyMap('blinkr_levy','(~HUD_COLOUR_YELLOWLIGHT~HUD~w~) - Le
 exports['I']:RegisterKeyMap('blinkr_pravy','(~HUD_COLOUR_YELLOWLIGHT~HUD~w~) - Pravý blinkr',Config.keys.turnRight)
 exports['I']:RegisterKeyMap('blinkr_vystrazne','(~HUD_COLOUR_YELLOWLIGHT~HUD~w~) - Výstražné světla',Config.keys.hazardLights)
 
--- Turn signal commands
+-- Turn signal commands with sound effects
 RegisterCommand("blinkr_levy", function()
+    local player = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(player, false)
+    
+    -- Check if player is in a vehicle and is the driver
+    if not IsPedInAnyVehicle(player, false) or GetPedInVehicleSeat(vehicle, -1) ~= player then
+        return
+    end
+    
+    -- Toggle state and play appropriate sound
     if vehicleSignalIndicator == 'off' then
         vehicleSignalIndicator = 'left'
+        PlaySoundFrontend(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
     else
         vehicleSignalIndicator = 'off'
+        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
     end
     TriggerEvent('hcyk_hud:setCarSignalLights', vehicleSignalIndicator)
 end)
 
 RegisterCommand("blinkr_pravy", function()
+    local player = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(player, false)
+    
+    -- Check if player is in a vehicle and is the driver
+    if not IsPedInAnyVehicle(player, false) or GetPedInVehicleSeat(vehicle, -1) ~= player then
+        return
+    end
+    
+    -- Toggle state and play appropriate sound
     if vehicleSignalIndicator == 'off' then
         vehicleSignalIndicator = 'right'
+        PlaySoundFrontend(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
     else
         vehicleSignalIndicator = 'off'
+        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
     end
     TriggerEvent('hcyk_hud:setCarSignalLights', vehicleSignalIndicator)
 end)
 
 RegisterCommand("blinkr_vystrazne", function()
+    local player = PlayerPedId()
+    local vehicle = GetVehiclePedIsIn(player, false)
+    
+    -- Check if player is in a vehicle and is the driver
+    if not IsPedInAnyVehicle(player, false) or GetPedInVehicleSeat(vehicle, -1) ~= player then
+        return
+    end
+    
+    -- Toggle state and play appropriate sound
     if vehicleSignalIndicator == 'off' then
         vehicleSignalIndicator = 'both'
+        PlaySoundFrontend(-1, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
     else
         vehicleSignalIndicator = 'off'
+        PlaySoundFrontend(-1, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", 1)
     end
     TriggerEvent('hcyk_hud:setCarSignalLights', vehicleSignalIndicator)
 end)
@@ -114,6 +147,9 @@ AddEventHandler('hcyk_hud:setCarSignalLights', function(status)
     local vehicle = GetVehiclePedIsIn(player, false)
     
     if not DoesEntityExist(vehicle) then return end
+    
+    -- Check if player is the driver
+    if GetPedInVehicleSeat(vehicle, -1) ~= player then return end
     
     local hasTrailer, vehicleTrailer = GetVehicleTrailerVehicle(vehicle, vehicleTrailer)
     local targetVeh = hasTrailer and vehicleTrailer or vehicle
@@ -136,8 +172,9 @@ AddEventHandler('hcyk_hud:setCarSignalLights', function(status)
     SetVehicleIndicatorLights(targetVeh, 0, leftLight)
     SetVehicleIndicatorLights(targetVeh, 1, rightLight)
     
-    -- Synchronize with other players
-    TriggerServerEvent('hcyk_hud:syncCarLights', status)
+    -- Set vehicle state for all occupants
+    local vehNetId = NetworkGetNetworkIdFromEntity(vehicle)
+    TriggerServerEvent('hcyk_hud:syncCarLights', status, vehNetId)
 end)
 
 -- Receive synchronized turn signals
@@ -199,6 +236,17 @@ AddEventHandler('gameEventTriggered', function(name, args)
             SetVehicleEngineOn(vehicle, true, true)
             SetVehicleFixed(vehicle)
         end
+    end
+end)
+
+-- Handle vehicle state updates from server
+RegisterNetEvent('hcyk_hud:syncVehicleState')
+AddEventHandler('hcyk_hud:syncVehicleState', function(vehNetId, state)
+    local vehicle = NetworkGetEntityFromNetworkId(vehNetId)
+    
+    local player = PlayerPedId()
+    if DoesEntityExist(vehicle) and IsPedInVehicle(player, vehicle, false) and GetPedInVehicleSeat(vehicle, -1) ~= player then
+        if state.signals ~= nil then vehicleSignalIndicator = state.signals end
     end
 end)
 

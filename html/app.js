@@ -433,19 +433,33 @@ window.addEventListener('message', function(event) {
       updateHUD();
       break;
       
-      case 'voiceState':
-        state.player.isTalking = data.isTalking !== undefined ? data.isTalking : state.player.isTalking;
-        
-        if (data.voiceRange !== undefined) {
-          state.player.voiceRange = data.voiceRange;
+    case 'voiceState':
+      state.player.isTalking = data.isTalking !== undefined ? data.isTalking : state.player.isTalking;
+      
+      if (data.voiceRange !== undefined) {
+        state.player.voiceRange = data.voiceRange;
+      }
+      
+      if (data.isTalkingOnRadio !== undefined) {
+        state.player.isTalkingOnRadio = data.isTalkingOnRadio;
+      }
+      
+      updateHUD();
+      break;
+
+    case 'bigmap':
+      if (data.active) {
+        const statusBox = document.querySelector('.status-box');
+        if (statusBox) {
+          statusBox.classList.add('bigmap-active');
         }
-        
-        if (data.isTalkingOnRadio !== undefined) {
-          state.player.isTalkingOnRadio = data.isTalkingOnRadio;
+      } else {
+        const statusBox = document.querySelector('.status-box');
+        if (statusBox) {
+          statusBox.classList.remove('bigmap-active');
         }
-        
-        updateHUD();
-        break;
+      }
+      break;
   }
 });
 

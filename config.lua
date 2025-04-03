@@ -1,5 +1,5 @@
 Config = {}
-Config.Debug = true
+
 Config.vehicle = {
     speedUnit = 'MPH', 
     maxSpeed = 200,    

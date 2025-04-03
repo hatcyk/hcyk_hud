@@ -1,4 +1,10 @@
 RegisterServerEvent('hcyk_hud:syncCarLights')
-AddEventHandler('hcyk_hud:syncCarLights', function(status)
+AddEventHandler('hcyk_hud:syncCarLights', function(status, vehNetId)
     TriggerClientEvent('hcyk_hud:syncCarLights', -1, source, status)
+    TriggerClientEvent('hcyk_hud:syncVehicleState', -1, vehNetId, {signals = status})
+end)
+
+RegisterServerEvent('hcyk_hud:vehicleCrashed')
+AddEventHandler('hcyk_hud:vehicleCrashed', function(vehNetId, crashData)
+    TriggerClientEvent('hcyk_hud:checkVehicleCrash', -1, vehNetId, crashData)
 end)
