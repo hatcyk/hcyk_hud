@@ -8,3 +8,28 @@ RegisterServerEvent('hcyk_hud:vehicleCrashed')
 AddEventHandler('hcyk_hud:vehicleCrashed', function(vehNetId, crashData)
     TriggerClientEvent('hcyk_hud:checkVehicleCrash', -1, vehNetId, crashData)
 end)
+
+RegisterServerEvent("hcyk_hud:TogDfltSrnMuted_s")
+AddEventHandler("hcyk_hud:TogDfltSrnMuted_s", function(toggle)
+	TriggerClientEvent("hcyk_hud:TogDfltSrnMuted_c", -1, source, toggle)
+end)
+
+RegisterServerEvent("hcyk_hud:SetLxSirenState_s")
+AddEventHandler("hcyk_hud:SetLxSirenState_s", function(newstate)
+	TriggerClientEvent("hcyk_hud:SetLxSirenState_c", -1, source, newstate)
+end)
+
+RegisterServerEvent("hcyk_hud:TogPwrcallState_s")
+AddEventHandler("hcyk_hud:TogPwrcallState_s", function(toggle)
+	TriggerClientEvent("hcyk_hud:TogPwrcallState_c", -1, source, toggle)
+end)
+
+RegisterServerEvent("hcyk_hud:SetAirManuState_s")
+AddEventHandler("hcyk_hud:SetAirManuState_s", function(newstate)
+	TriggerClientEvent("hcyk_hud:SetAirManuState_c", -1, source, newstate)
+end)
+
+RegisterServerEvent("hcyk_hud:TogIndicState_s")
+AddEventHandler("hcyk_hud:TogIndicState_s", function(newstate)
+	TriggerClientEvent("hcyk_hud:TogIndicState_c", -1, source, newstate)
+end)

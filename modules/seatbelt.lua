@@ -32,8 +32,6 @@ function DebugPrint(label, ...)
             text = text .. tostring(arg) .. " "
         end
     end
-    
-    print("[SEATBELT-DEBUG] " .. text)
 end
 
 -- Register key binding

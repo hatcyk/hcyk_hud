@@ -17,6 +17,9 @@ client_scripts {
     'modules/seatbelt.lua',
     'modules/cruise.lua',
     'modules/vehicle.lua',
+    'modules/lux.lua',
+    'modules/smoothstart.lua',
+    'modules/rpdriving.lua',
     'modules/hud.lua',
     'client.lua'
 }

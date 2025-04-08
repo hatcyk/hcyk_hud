@@ -174,3 +174,4 @@ exports('Notify', notify)
 exports('ConvertSpeed', convertSpeed)
 exports('VehicleHasSeatbelts', vehicleHasSeatbelts)
 exports('GetMinimapAnchor', GetMinimapAnchor)
+

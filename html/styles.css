@@ -158,6 +158,17 @@
 	#oxygen-icon.low {
 		animation: pulse-purple 1.5s infinite;
 	}
+
+	/* Přidat styly pro nové ikony */
+	#radio-icon {
+		border-color: rgba(120, 81, 169, 0.8);
+		box-shadow: 0 0 8px rgba(120, 81, 169, 0.5);
+		display: none;
+	}
+
+	#radio-icon.active {
+		color: rgba(120, 81, 169, 1);
+	}
 	
 	
 	/* ======================================================
@@ -228,7 +239,24 @@
 		color: rgba(123, 44, 191, 1);
 		box-shadow: 0 0 10px rgba(123, 44, 191, 0.7);
 	}
+
+	#siren-indicator.siren-only {
+		color: rgba(255, 0, 0, 1);
+		box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+		border-color: rgba(255, 0, 0, 0.8);
+	}
 	
+	#siren-indicator.siren-with-sound {
+		color: rgba(0, 162, 255, 1);
+		box-shadow: 0 0 10px rgba(0, 162, 255, 0.7);
+		border-color: rgba(0, 162, 255, 0.8);
+		animation: siren-pulse 0.7s infinite alternate;
+	}
+	
+	@keyframes siren-pulse {
+		0% { color: rgba(255, 0, 0, 1); box-shadow: 0 0 15px rgba(255, 0, 0, 0.7); border-color: rgba(255, 0, 0, 1); }
+		100% { color: rgba(0, 162, 255, 1); box-shadow: 0 0 15px rgba(0, 162, 255, 0.9); border-color: rgba(0, 162, 255, 1); }
+	}
 	
 	/* ======================================================
 		Section 6: Vehicle Main Panel & Info Styling
@@ -258,6 +286,8 @@
 	  flex-direction: column;
 	  align-items: center;
 	  justify-content: center;
+	  z-index: 1;
+	  transition: box-shadow 0.3s ease;
 	}
 	
 	/* Speed value with improved visibility and fixed size */
@@ -460,153 +490,394 @@
 /* ======================================================
 	Section 9: Animations & Animation Classes
 	====================================================== */
+@keyframes pulse-red {
+	0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); }
+	70% { box-shadow: 0 0 0 8px rgba(255, 59, 59, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
+}
 
-	@keyframes pulse-red {
-		0% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); }
-		70% { box-shadow: 0 0 0 8px rgba(255, 59, 59, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
-	}
-	
-	@keyframes pulse-orange {
-		0% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
-		70% { box-shadow: 0 0 0 8px rgba(255, 165, 0, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
-	}
-	
-	@keyframes pulse-blue {
-		0% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0.7); }
-		70% { box-shadow: 0 0 0 8px rgba(46, 134, 222, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0); }
-	}
-	
-	@keyframes pulse-green {
-		0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
-		70% { box-shadow: 0 0 0 8px rgba(46, 204, 113, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
-	}
-	
-	@keyframes pulse-purple {
-		0% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.7); }
-		70% { box-shadow: 0 0 0 8px rgba(142, 68, 173, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0); }
-	}
-	
-	@keyframes pulse-text-red {
-		0% { opacity: 1; }
-		50% { opacity: 0.5; }
-		100% { opacity: 1; }
-	}
-	
-	@keyframes blink {
-		80% { color: transparent; }
-		40% { color: rgba(255, 165, 0, 1); }
-	}
-	
-	.blinking {
-		animation: blink 1s infinite;
-	}
-	
-	@keyframes hide {
-		0% { opacity: 1; transform: translateY(0); }
-		100% { opacity: 0; transform: translateY(10px); }
-	}
-	
-	@keyframes show {
-		0% { opacity: 0; transform: translateY(10px); }
-		100% { opacity: 1; transform: translateY(0); }
-	}
-	
-	@keyframes hide-show {
-		0% { opacity: 1; transform: translateY(0); }
-		50% { opacity: 0; transform: translateY(10px); }
-		100% { opacity: 1; transform: translateY(0); }
-	}
-	
-	@keyframes show-hide {
-		0% { opacity: 0; transform: translateY(10px); }
-		50% { opacity: 1; transform: translateY(0); }
-		100% { opacity: 0; transform: translateY(10px); }
-	}
-	
-	/* Classes for toggleStatusIcon animation function */
-	.show-hide {
-		animation: show 0.5s ease-in-out forwards;
-	}
-	
-	.appearing {
-		animation: show 0.5s ease-in-out forwards;
-	}
-	
-	.disappearing {
-		animation: hide 0.5s ease-in-out forwards;
-	}
-	
-	/* ======================================================
-		Section 10: Low Status Screen Effects
-		====================================================== */
-		
-	.oxygen-effect {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.7) 100%);
-		pointer-events: none;
-		z-index: 9999;
-		opacity: 0;
-		transition: opacity 1s ease;
-	}
-	
-	.oxygen-effect.active {
-		opacity: 1;
-		animation: pulse-oxygen 2s infinite;
-	}
-	
-	@keyframes pulse-oxygen {
-		0% { opacity: 0.3; }
-		50% { opacity: 0.7; }
-		100% { opacity: 0.3; }
-	}
-	
-	.hunger-effect, .thirst-effect {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		pointer-events: none;
-		z-index: 9998;
-		opacity: 0;
-		transition: opacity 0.5s ease;
-	}
-	
-	.hunger-effect {
-		background: radial-gradient(circle, transparent 70%, rgba(255, 165, 0, 0.2) 100%);
-	}
-	
-	.thirst-effect {
-		background: radial-gradient(circle, transparent 70%, rgba(46, 134, 222, 0.2) 100%);
-	}
-	
-	.hunger-effect.active, .thirst-effect.active {
-		opacity: 1;
-	}
+@keyframes pulse-orange {
+	0% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0.7); }
+	70% { box-shadow: 0 0 0 8px rgba(255, 165, 0, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(255, 165, 0, 0); }
+}
 
-	#microphone-icon {
-		border-color: rgba(120, 81, 169, 0.8);
-		box-shadow: 0 0 8px rgba(120, 81, 169, 0.5);
-		display: none;
-	}
+@keyframes pulse-blue {
+	0% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0.7); }
+	70% { box-shadow: 0 0 0 8px rgba(46, 134, 222, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(46, 134, 222, 0); }
+}
 
-	#microphone-icon.active {
-		transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-		animation: pulse-mic 0.5s infinite;
-		display: flex;
-	}
+@keyframes pulse-green {
+	0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+	70% { box-shadow: 0 0 0 8px rgba(46, 204, 113, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
 
-	  @keyframes pulse-mic {
-		0% { box-shadow: 0 0 0 0 rgba(120, 81, 169, 0.7); }
-		70% { box-shadow: 0 0 0 8px rgba(120, 81, 169, 0); }
-		100% { box-shadow: 0 0 0 0 rgba(120, 81, 169, 0); }
-	  }
+@keyframes pulse-purple {
+	0% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0.7); }
+	70% { box-shadow: 0 0 0 8px rgba(142, 68, 173, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(142, 68, 173, 0); }
+}
+/* Přidat novou animaci pro drug efekt */
+@keyframes pulse-teal {
+	0% { box-shadow: 0 0 0 0 rgba(26, 188, 156, 0.7); }
+	70% { box-shadow: 0 0 0 10px rgba(26, 188, 156, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(26, 188, 156, 0); }
+}
+
+@keyframes pulse-text-red {
+	0% { opacity: 1; }
+	50% { opacity: 0.5; }
+	100% { opacity: 1; }
+}
+
+@keyframes blink {
+	80% { color: transparent; }
+	40% { color: rgba(255, 165, 0, 1); }
+}
+
+.blinking {
+	animation: blink 1s infinite;
+}
+
+@keyframes hide {
+	0% { opacity: 1; transform: translateY(0); }
+	100% { opacity: 0; transform: translateY(10px); }
+}
+
+@keyframes show {
+	0% { opacity: 0; transform: translateY(10px); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes hide-show {
+	0% { opacity: 1; transform: translateY(0); }
+	50% { opacity: 0; transform: translateY(10px); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes show-hide {
+	0% { opacity: 0; transform: translateY(10px); }
+	50% { opacity: 1; transform: translateY(0); }
+	100% { opacity: 0; transform: translateY(10px); }
+}
+
+/* Classes for toggleStatusIcon animation function */
+.show-hide {
+	animation: show 0.5s ease-in-out forwards;
+}
+
+.appearing {
+	animation: show 0.5s ease-in-out forwards;
+}
+
+.disappearing {
+	animation: hide 0.5s ease-in-out forwards;
+}
+
+/* ======================================================
+	Section 10: Low Status Screen Effects
+	====================================================== */
+.oxygen-effect {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: radial-gradient(circle, transparent 30%, rgba(0, 0, 0, 0.7) 100%);
+	pointer-events: none;
+	z-index: 9999;
+	opacity: 0;
+	transition: opacity 1s ease;
+}
+
+.oxygen-effect.active {
+	opacity: 1;
+	animation: pulse-oxygen 2s infinite;
+}
+
+@keyframes pulse-oxygen {
+	0% { opacity: 0.3; }
+	50% { opacity: 0.7; }
+	100% { opacity: 0.3; }
+}
+
+.hunger-effect, .thirst-effect {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+	z-index: 9998;
+	opacity: 0;
+	transition: opacity 0.5s ease;
+}
+
+.hunger-effect {
+	background: radial-gradient(circle, transparent 70%, rgba(255, 165, 0, 0.2) 100%);
+}
+
+.thirst-effect {
+	background: radial-gradient(circle, transparent 70%, rgba(46, 134, 222, 0.2) 100%);
+}
+
+.hunger-effect.active, .thirst-effect.active {
+	opacity: 1;
+}
+#microphone-icon {
+	border-color: rgba(120, 81, 169, 0.8);
+	box-shadow: 0 0 8px rgba(120, 81, 169, 0.5);
+	display: none;
+}
+#microphone-icon.active {
+	transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+	animation: pulse-mic 0.5s infinite;
+	display: flex;
+}
+  @keyframes pulse-mic {
+	0% { box-shadow: 0 0 0 0 rgba(120, 81, 169, 0.7); }
+	70% { box-shadow: 0 0 0 8px rgba(120, 81, 169, 0); }
+	100% { box-shadow: 0 0 0 0 rgba(120, 81, 169, 0); }
+  }
+.cinematic-bars {
+	display: none;
+	position: fixed;
+	width: 100%;
+	height: 15vh;
+	background-color: #000;
+	z-index: 1000;
+}
+.cinematic-top {
+	top: 0;
+}
+.cinematic-bottom {
+	bottom: 0;
+}
+.cinematic-active .cinematic-bars {
+	display: block;
+}
+.cinematic-active .status-box {
+	bottom: 18vh;
+}
+#radio-container {
+	display: none;
+}
+#radio-container.active {
+	display: flex;
+}
+#radio-icon.active {
+	color: #4CAF50;
+}
+/* Přidej nebo uprav tyto styly */
+.speed-info {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(20, 22, 36, 0.65) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(27, 28, 46, 0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Oprava barevného stínu při aktivaci cruise/smooth */
+.speed-info.smooth-active {
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+  border-color: rgba(0, 255, 0, 0.7);
+}
+
+.speed-info.cruise-active {
+  box-shadow: 0 0 15px 4px rgba(123, 44, 191, 0.7);
+  border-color: rgba(123, 44, 191, 0.9);
+}
+
+/* Nová třída pro kombinaci obou efektů */
+.speed-info.dual-active {
+  background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(20, 22, 36, 0.65) 100%);
+  border-image: linear-gradient(90deg, rgba(0, 255, 0, 0.7) 0%, rgba(123, 44, 191, 0.9) 100%) 1;
+  box-shadow: 
+    -8px 0 15px rgba(0, 255, 0, 0.5),
+    8px 0 15px rgba(123, 44, 191, 0.7);
+}
+
+/* Zajištění správné viditelnosti HTML elementů */
+.status-item {
+  position: relative;
+  display: none;
+}
+
+.status-item.active {
+  display: flex;
+}
+
+/* Vylepšené styly pro smooth/cruise efekt */
+
+.speed-info.smooth-active {
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+  border-color: rgba(0, 255, 0, 0.7);
+}
+
+.speed-info.cruise-active {
+  box-shadow: 0 0 15px rgba(123, 44, 191, 0.7);
+  border-color: rgba(123, 44, 191, 0.9);
+}
+
+/* Vylepšená třída pro kombinaci obou efektů */
+.speed-info.dual-active {
+  background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(20, 22, 36, 0.65) 100%);
+  border-image: linear-gradient(90deg, rgba(0, 255, 0, 0.7) 50%, rgba(123, 44, 191, 0.9) 50%) 1;
+  box-shadow: 
+    -10px 0 15px rgba(0, 255, 0, 0.5),
+    10px 0 15px rgba(123, 44, 191, 0.7);
+}
+
+/* Přidání plynulých animací pro speed-info - upravit existující kód */
+
+/* Základní speed-info s přidanou plynulou tranzicí */
+.speed-info {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(20, 22, 36, 0.65) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(27, 28, 46, 0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  
+  /* Vylepšení plynulosti pro všechny vlastnosti */
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Efekt smooth throttle s animací */
+.speed-info.smooth-active {
+  animation: smooth-glow 1.5s infinite alternate;
+  border-color: rgba(0, 255, 0, 0.7);
+}
+
+/* Efekt cruise control s animací */
+.speed-info.cruise-active {
+  animation: cruise-glow 1.5s infinite alternate;
+  border-color: rgba(123, 44, 191, 0.9);
+}
+
+/* Kombinovaný efekt s animací */
+.speed-info.dual-active {
+  background: linear-gradient(145deg, rgba(14, 15, 24, 0.65) 0%, rgba(20, 22, 36, 0.65) 100%);
+  border-image: linear-gradient(90deg, rgba(0, 255, 0, 0.7) 50%, rgba(123, 44, 191, 0.9) 50%) 1;
+  animation: dual-glow 2s infinite alternate;
+}
+
+/* Defininovat animace pro glow efekty */
+@keyframes smooth-glow {
+  0% { box-shadow: 0 0 10px rgba(0, 255, 0, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); }
+}
+
+@keyframes cruise-glow {
+  0% { box-shadow: 0 0 10px rgba(123, 44, 191, 0.3); }
+  100% { box-shadow: 0 0 20px rgba(123, 44, 191, 0.7); }
+}
+
+@keyframes dual-glow {
+  0% { 
+    box-shadow: 
+      -8px 0 10px rgba(0, 255, 0, 0.3),
+      8px 0 10px rgba(123, 44, 191, 0.3); 
+  }
+  100% { 
+    box-shadow: 
+      -10px 0 20px rgba(0, 255, 0, 0.7),
+      10px 0 20px rgba(123, 44, 191, 0.7); 
+  }
+}
+
+/* Skidding/Traction Loss Effect */
+.speed-info.skidding-active {
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.7);
+  animation: pulse-skidding 0.6s infinite;
+}
+
+@keyframes pulse-skidding {
+  0% { box-shadow: 0 0 8px rgba(255, 255, 0, 0.7); background-position: 0% 0%; }
+  50% { box-shadow: 0 0 15px rgba(255, 255, 0, 0.9); background-position: 100% 0%; }
+  100% { box-shadow: 0 0 8px rgba(255, 255, 0, 0.7); background-position: 0% 0%; }
+}
+
+/* Maintain visibility during pulse animation */
+.speed-info.skidding-active #speed-value,
+.speed-info.skidding-active .speed-unit {
+  text-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Enhanced warning indicator for the gear display during skidding */
+.speed-info.skidding-active .gear-info {
+  box-shadow: 0 0 8px rgba(255, 255, 0, 0.7);
+  animation: pulse-gear-skidding 0.6s infinite alternate;
+}
+
+@keyframes pulse-gear-skidding {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+
+/* ======================================================
+	Section 11: Cinematic Mode
+	====================================================== */
+
+.cinematic-bars {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  height: 15vh;
+  background-color: #000;
+  z-index: 9999;
+  transition: transform 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.cinematic-top {
+  top: 0;
+  transform: translateY(-100%);
+}
+
+.cinematic-bottom {
+  bottom: 0;
+  transform: translateY(100%);
+}
+
+body.cinematic-active .cinematic-top {
+  transform: translateY(0);
+}
+
+body.cinematic-active .cinematic-bottom {
+  transform: translateY(0);
+}
+
+/* Hide UI elements during cinematic mode */
+body.cinematic-active #status-icons,
+body.cinematic-active #vehicle-display,
+body.cinematic-active #location-display {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+/* Additional transition for smooth appearance/disappearance */
+#status-icons,
+#vehicle-display,
+#location-display {
+  transition: opacity 0.5s ease;
+}

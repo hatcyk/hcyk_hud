@@ -196,6 +196,21 @@ Citizen.CreateThread(function()
     end
 end)
 
+Citizen.CreateThread(function()
+    while true do
+        Citizen.Wait(500)
+
+        -- Check if cinematic mode is active
+        local isCinematicMode = IsCinematicModeActive()
+
+        -- Hide carhud if in cinematic mode
+        SendNUIMessage({
+            name = "hideHud",
+            show = not isCinematicMode
+        })
+    end
+end)
+
 -- PMA-Voice integration
 if GetResourceState("pma-voice") == "started" then
     AddEventHandler("pma-voice:setTalkingMode", function(mode)

@@ -5,6 +5,7 @@ local vehicleCruiser = 'off'
 local vehicleSignalIndicator = 'off'
 local lastVehEngine = false
 local lastVehCache = nil
+local isVehicleSkidding = false
 
 -- Vehicle classification
 local vehicleClasses = {
@@ -17,7 +18,7 @@ local vehicleClasses = {
 }
 
 -- Check vehicle type
-function identifyVehicleType(veh)
+function IdentifyVehicleType(veh)
     if not veh or (lastVehCache and lastVehCache == veh) then
         return
     end
@@ -31,7 +32,11 @@ function identifyVehicleType(veh)
     
     local vc = GetVehicleClass(veh)
     
-    if (vc >= 0 and vc <= 7) or (vc >= 9 and vc <= 12) or (vc >= 17 and vc <= 20) then
+    -- Nejprve zkontrolovat emergency vozidla (třída 18)
+    if vc == 18 then
+        vehicleClasses.isEmergency = true
+        vehicleClasses.isCar = true -- Emergency vozidla jsou také auta
+    elseif (vc >= 0 and vc <= 7) or (vc >= 9 and vc <= 12) or (vc >= 17 and vc <= 20) then
         vehicleClasses.isCar = true
     elseif vc == 8 then
         vehicleClasses.isMotorcycle = true
@@ -250,13 +255,26 @@ AddEventHandler('hcyk_hud:syncVehicleState', function(vehNetId, state)
     end
 end)
 
+-- Add event handler
+RegisterNetEvent('hcyk_hud:setSkiddingState')
+AddEventHandler('hcyk_hud:setSkiddingState', function(skidding)
+    isVehicleSkidding = skidding
+    
+    -- Send NUI message directly to update UI immediately
+    SendNUIMessage({
+        name = "skiddingState",
+        isSkidding = skidding
+    })
+end)
+
 -- Get vehicle state
 function GetVehicleState()
     return {
         classes = vehicleClasses,
         cruiser = vehicleCruiser,
         signals = vehicleSignalIndicator,
-        engine = lastVehEngine
+        engine = lastVehEngine,
+        skidding = isVehicleSkidding
     }
 end
 
@@ -268,7 +286,7 @@ function SetVehicleState(state)
 end
 
 -- Exports
-exports('IdentifyVehicleType', identifyVehicleType)
+exports('IdentifyVehicleType', IdentifyVehicleType)
 exports('ToggleEngine', ToggleEngine)
 exports('GetVehicleState', GetVehicleState)
 exports('SetVehicleState', SetVehicleState)

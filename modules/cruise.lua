@@ -14,30 +14,39 @@ function IsCruiseControlActive()
 end
 
 -- Main cruise control function to limit vehicle speed
-function limitVehicleSpeed(vehicle, speed)
-    if not speed then
-        resetVehicleMaxSpeed(vehicle)
-        return
-    end
-
-    if not DoesEntityExist(vehicle) then return end
+function limitVehicleSpeed(vehicle, targetSpeedMPH)
+    if not DoesEntityExist(vehicle) then return false end
     
-    -- Convert MPH to m/s for internal calculations
-    local speedMS = (tonumber(speed) or 0) * 0.44704
-    
+    -- Convert target speed from MPH to m/s
+    targetSpeed = targetSpeedMPH * 0.44704
     activeVehicle = vehicle
-    targetSpeed = speedMS
     
-    -- First slow down if we're going too fast
-    slowToTargetSpeed(vehicle, speedMS)
+    -- Limit max speed to reasonable maximum
+    local maxSpeedMPH = Config.cruiseControl.maxSpeed or 150
+    if targetSpeedMPH > maxSpeedMPH then
+        targetSpeedMPH = maxSpeedMPH
+        targetSpeed = targetSpeedMPH * 0.44704
+    end
     
     -- Set the hard max speed limit
-    SetVehicleMaxSpeed(vehicle, speedMS)
+    SetVehicleMaxSpeed(vehicle, targetSpeed)
     
     -- Start the control thread if not already running
     if not cruiseThread then
         startCruiseThread()
     end
+    
+    -- Odeslat stav cruise control do UI a zjistit stav smooth throttle
+    local smoothActive = exports["hcyk_hud"]:IsThrottleControlActive()
+    
+    SendNUIMessage({
+        name = "cruiseControl",
+        active = true,
+        speed = targetSpeedMPH,
+        smoothActive = smoothActive
+    })
+    
+    return true
 end
 
 -- Start thread to monitor and control cruise speed
@@ -128,8 +137,14 @@ function resetVehicleMaxSpeed(vehicle)
     Citizen.Wait(10)
     
     -- Reset to vehicle's natural maximum speed
-    local maxSpeed = GetVehicleHandlingFloat(vehicle, "CHandlingData", "fInitialDriveMaxFlatVel")
+    local maxSpeed = GetVehicleHandlingMaxSpeed(vehicle)
     SetVehicleMaxSpeed(vehicle, maxSpeed)
+    
+    -- Odeslat stav cruise control do UI
+    SendNUIMessage({
+        name = "cruiseControl",
+        active = false
+    })
 end
 
 -- Get the handling maximum speed

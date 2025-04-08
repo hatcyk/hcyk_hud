@@ -428,6 +428,7 @@ window.addEventListener('message', function(event) {
         document.body.style.opacity = '1';
       } else {
         document.body.style.opacity = '0';
+        animations.fadeOut(components.vehicleDisplay); // Ensure carhud is hidden
       }
       
       updateHUD();
