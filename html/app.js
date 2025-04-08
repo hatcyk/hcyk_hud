@@ -5,11 +5,14 @@ let state = {
     gear: 'N',
     fuel: 100,
     damage: 100,
-    cruise: false,
+    cruise: 'off',
     seatbelt: false,
     lights: 'off',
     signals: 'off',
-    haveBelt: true
+    haveBelt: true,
+    sirenState: 0,
+    isEmergency: false,
+    skidding: false // Add this new property
   },
   player: {
     health: 100,
@@ -60,6 +63,10 @@ const animations = {
   toggleStatusIcon: (element, show, duration = 300) => {
     if (!element) return;
     
+    // Přidána ochrana proti opakovaným voláním se stejným stavem
+    if (show && element.style.display === 'flex' && !element.classList.contains('disappearing')) return;
+    if (!show && (element.style.display === 'none' || element.classList.contains('disappearing'))) return;
+    
     if (show) {
       element.classList.remove('disappearing');
       element.style.display = 'flex';
@@ -83,7 +90,9 @@ const animations = {
   }
 };
 
+// Aktualizace komponent
 const components = {
+  // Existující komponenty
   healthIcon: document.getElementById('health-icon'),
   healthValue: document.getElementById('health-value'),
   armorIcon: document.getElementById('armor-icon'),
@@ -99,6 +108,11 @@ const components = {
   microphoneIcon: document.getElementById('microphone-icon'),
   microphoneValue: document.getElementById('microphone-value'),
   
+  // Opravené komponenty se stejnou strukturou jako ostatní
+  radioIcon: document.getElementById('radio-icon'),
+  radioValue: document.getElementById('radio-value'),
+  
+  // Zbytek existujících komponent...
   vehicleDisplay: document.getElementById('vehicle-display'),
   speedValue: document.getElementById('speed-value'),
   gearValue: document.getElementById('gear-value'),
@@ -121,8 +135,27 @@ const components = {
   timeValue: document.getElementById('time-value'),
   directionValue: document.getElementById('direction-value'),
   streetValue: document.getElementById('street-value'),
-  postalValue: document.getElementById('postal-value')
+  postalValue: document.getElementById('postal-value'),
+  
+  sirenIndicator: document.getElementById('siren-indicator')
 };
+
+// Create cinematic bars
+function createCinematicBars() {
+  // Create top bar
+  const topBar = document.createElement('div');
+  topBar.className = 'cinematic-bars cinematic-top';
+  document.body.appendChild(topBar);
+  
+  // Create bottom bar
+  const bottomBar = document.createElement('div');
+  bottomBar.className = 'cinematic-bars cinematic-bottom';
+  document.body.appendChild(bottomBar);
+  
+  // Add to components if needed
+  components.cinematicTopBar = topBar;
+  components.cinematicBottomBar = bottomBar;
+}
 
 // Create screen effects elements
 function createScreenEffects() {
@@ -144,13 +177,23 @@ function createScreenEffects() {
   thirstEffect.id = 'thirst-effect';
   document.body.appendChild(thirstEffect);
   
+  // Add cinematic bars
+  createCinematicBars();
+  
   // Add to components
   components.oxygenEffect = oxygenEffect;
   components.hungerEffect = hungerEffect;
   components.thirstEffect = thirstEffect;
 }
 
+// Update the updateHUD function to respect cinematic mode
+
 function updateHUD() {
+  // Check if cinematic mode is active - don't update UI elements if it is
+  if (document.body.classList.contains('cinematic-active')) {
+    return;
+  }
+  
   if (components.healthValue) {
     components.healthValue.textContent = Math.round(state.player.health);
     components.healthIcon.classList.toggle('low', state.player.health < 25);
@@ -257,7 +300,8 @@ function updateHUD() {
     
     if (components.seatbeltIndicator) {
       components.seatbeltIndicator.classList.toggle('active', state.vehicle.seatbelt);
-      animations.toggleStatusIcon(components.seatbeltIndicator, state.vehicle.haveBelt);
+      // Vždy zobrazit, když je hráč ve vozidle, které má pásy
+      components.seatbeltIndicator.style.display = state.vehicle.haveBelt ? 'flex' : 'none';
     }
     
     if (components.lightsIndicator) {
@@ -327,6 +371,27 @@ function updateHUD() {
       animations.fadeOut(components.locationDisplay);
     }
   }
+
+  if (components.radioValue) {
+    components.radioValue.textContent = state.player.radioChannel || '0';
+    animations.toggleStatusIcon(components.radioIcon, state.player.radioChannel > 0);
+  }
+  
+  // Aktualizace sirény - zobrazit pouze v emergency vozidlech
+  if (components.sirenIndicator) {
+    if (state.vehicle.isEmergency) {
+      components.sirenIndicator.style.display = 'flex';
+      components.sirenIndicator.classList.remove('siren-only', 'siren-with-sound');
+      
+      if (state.vehicle.sirenState === 1) {
+        components.sirenIndicator.classList.add('siren-only');
+      } else if (state.vehicle.sirenState >= 2) {
+        components.sirenIndicator.classList.add('siren-with-sound');
+      }
+    } else {
+      components.sirenIndicator.style.display = 'none';
+    }
+  }
 }
 
 window.addEventListener('message', function(event) {
@@ -336,35 +401,19 @@ window.addEventListener('message', function(event) {
   
   switch (data.name) {
     case 'hudTick':
-      state.player.health = data.health || 0;
-      state.player.armor = data.armor || 0;
-      state.player.hunger = data.hunger || 0;
-      state.player.thirst = data.thirst || 0;
-      state.player.stamina = data.stamina || 100;
-      
-      if (data.oxygen !== undefined) {
-        state.player.oxygen = data.oxygen;
-      }
-      state.player.isUnderwater = data.isUnderwater || false;
+      // Vždy aktualizujeme hodnoty, i když jsou stejné jako předchozí
+      if (data.health !== undefined) state.player.health = data.health;
+      if (data.armor !== undefined) state.player.armor = data.armor;
+      if (data.hunger !== undefined) state.player.hunger = data.hunger;
+      if (data.thirst !== undefined) state.player.thirst = data.thirst;
+      if (data.stamina !== undefined) state.player.stamina = data.stamina;
+      if (data.oxygen !== undefined) state.player.oxygen = data.oxygen;
+      if (data.isUnderwater !== undefined) state.player.isUnderwater = data.isUnderwater;
       
       state.settings.visible = data.show !== false;
       
-      fetch('https://hcyk_hud/getGameTime', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: JSON.stringify({ time: state.location.time })
-      })
-        .then(response => response.json())
-        .then(timeData => {
-          state.location.time = timeData.time;
-          updateHUD();
-        })
-        .catch(error => {
-          updateHUD();
-        });
-      
+      // Force immediate update
+      updateHUD();
       break;
       
     case 'updateCarhud':
@@ -379,6 +428,12 @@ window.addEventListener('message', function(event) {
             state.vehicle.fuel = info.fuel || 0;
             state.vehicle.signals = info.signals || 'off';
             state.vehicle.cruise = info.cruiser || 'off';
+            state.vehicle.sirenState = info.sirenState || 0;
+            state.vehicle.isEmergency = info.isEmergency || false;
+            state.vehicle.skidding = info.skidding || false; // Add skidding state handling
+            
+            // Okamžitá aktualizace UI po změně stavu
+            updateHUD();
             
             if (info.dash) {
               state.vehicle.seatbelt = info.dash.seatbelt || false;
@@ -428,7 +483,6 @@ window.addEventListener('message', function(event) {
         document.body.style.opacity = '1';
       } else {
         document.body.style.opacity = '0';
-        animations.fadeOut(components.vehicleDisplay); // Ensure carhud is hidden
       }
       
       updateHUD();
@@ -461,10 +515,133 @@ window.addEventListener('message', function(event) {
         }
       }
       break;
+
+    case 'cinematicMode':
+      if (data.enabled) {
+        document.body.classList.add('cinematic-active');
+        // Hide radar using the existing NUI callback
+        fetch('https://hcyk_hud/hideRadar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: JSON.stringify({})
+        });
+      } else {
+        document.body.classList.remove('cinematic-active');
+        // Let the regular HUD update function handle showing elements again
+        updateHUD();
+      }
+      break;
+
+    case 'smoothControl':
+      state.vehicle.smoothActive = data.active;
+      
+      const speedContainer = document.querySelector('.speed-info');
+      if (speedContainer) {
+        updateSpeedBoxClasses(speedContainer);
+      }
+      break;
+
+    // Vylepšit zobrazení cruise control 
+    case 'cruiseControl':
+      state.vehicle.cruiseActive = data.active;
+      
+      const speedContainerCruise = document.querySelector('.speed-info');
+      if (speedContainerCruise) {
+        updateSpeedBoxClasses(speedContainerCruise);
+      }
+      break;
+
+    case 'skiddingState':
+      state.vehicle.skidding = data.isSkidding; // Add skidding state
+      
+      const speedContainerSkidding = document.querySelector('.speed-info');
+      if (speedContainerSkidding) {
+        updateSpeedBoxClasses(speedContainerSkidding);
+      }
+      break;
   }
 });
+
+// Vylepšená funkce pro aktualizaci stavů cruise/smooth/skidding
+
+function updateSpeedBoxClasses(element) {
+  // Nejprve odstraníme všechny třídy
+  element.classList.remove('smooth-active', 'cruise-active', 'dual-active', 'skidding-active');
+  
+  // Poté přidáme odpovídající třídu podle stavů
+  if (state.vehicle.smoothActive && state.vehicle.cruiseActive) {
+    element.classList.add('dual-active');
+  } else if (state.vehicle.smoothActive) {
+    element.classList.add('smooth-active');
+  } else if (state.vehicle.cruiseActive) {
+    element.classList.add('cruise-active');
+  }
+  
+  // Add skidding class
+  element.classList.toggle('skidding-active', state.vehicle.skidding);
+}
 
 document.addEventListener('DOMContentLoaded', function() {
   createScreenEffects();
   updateHUD();
+  
+  // Inicializace stavů pro cruise a smooth
+  state.vehicle.smoothActive = false;
+  state.vehicle.cruiseActive = false;
+  
+  // Aplikovat případné persistentní stavy z Lua
+  fetch('https://hcyk_hud/getUIData', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify({ currentData: state })
+  })
+  .then(response => response.json())
+  .then(uiData => {
+    // Update time
+    state.location.time = uiData.time;
+    
+    // Update control states
+    if (uiData.controls) {
+      state.vehicle.throttleControlActive = uiData.controls.smoothActive;
+      state.vehicle.cruiseControlActive = uiData.controls.cruiseActive;
+    }
+    
+    const speedContainer = document.querySelector('.speed-info');
+    if (speedContainer) {
+      updateSpeedBoxClasses(speedContainer);
+    }
+    
+    updateHUD();
+  })
+  .catch(error => {
+    console.error('Error fetching UI data:', error);
+    updateHUD();
+  });
+  
+  // Get initial UI data
+  fetch('https://hcyk_hud/getUIData', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify({})
+  })
+    .then(response => response.json())
+    .then(uiData => {
+      state.location.time = uiData.time;
+      
+      if (uiData.controls) {
+        state.vehicle.throttleControlActive = uiData.controls.smoothActive;
+        state.vehicle.cruiseControlActive = uiData.controls.cruiseActive;
+      }
+      
+      updateHUD();
+    })
+    .catch(() => {
+      updateHUD();
+    });
 });
